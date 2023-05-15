@@ -13,5 +13,7 @@ export default class CadastroCpf extends Processo{
         let numero = this.entrada.receberTexto('Numero do CPF: ')
         let cpf = new Documento(numero, TipoDocumento.CPF, new Date("00-00-0000"))
         this.cliente.Documentos.push(cpf)
+        console.log("CPF cadastrado :)");
+        
     }
 }
