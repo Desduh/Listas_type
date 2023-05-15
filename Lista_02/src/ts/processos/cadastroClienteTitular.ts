@@ -2,6 +2,7 @@ import Processo from "../abstracoes/processo";
 import Armazem from "../dominio/armazem";
 import Cliente from "../modelos/cliente";
 import CadastrarDocumentosCliente from "./cadastrarDocumentosCliente";
+import CadastroClienteTelefone from "./cadastroClienteTelefone";
 import CadastroEnderecoTitular from "./cadastroEnderecoTitular";
 
 export default class CadastroClienteTitular extends Processo {
@@ -16,6 +17,9 @@ export default class CadastroClienteTitular extends Processo {
         this.processo.processar()
 
         this.processo = new CadastrarDocumentosCliente(cliente)
+        this.processo.processar()
+
+        this.processo = new CadastroClienteTelefone(cliente)
         this.processo.processar()
 
         let armazem = Armazem.InstanciaUnica

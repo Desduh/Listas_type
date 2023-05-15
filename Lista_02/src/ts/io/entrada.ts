@@ -1,4 +1,5 @@
 import promptSync from "prompt-sync";
+import Telefone from "../modelos/telefone";
 
 export default class Entrada {
     public receberNumero(mensagem: string): number {
@@ -22,4 +23,13 @@ export default class Entrada {
         let data = new Date(ano.valueOf(), mes.valueOf() - 1, dia.valueOf())
         return data
     }
+    public receberNumeroTelefone(mensagem: string): Telefone {
+        let prompt = promptSync();
+        let texto = prompt(`${mensagem}, no padrão DDD-NNNNNNN: `);
+        let partes = texto.split("-");
+        let ddd = new String(partes[0]);
+        let numero = new String(partes[1]);
+        let telefone = new Telefone(ddd.valueOf(), numero.valueOf());
+        return telefone;
+      }
 }
