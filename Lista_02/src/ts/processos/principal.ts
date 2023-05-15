@@ -1,7 +1,7 @@
 import Processo from "../abstracoes/processo"
 import MenuPrincipal from "../menus/menuPricipal"
-import TipoCadastroCliente from "./tipoCadastroCliente"
-import TipoListagemClientes from "./tipoListagemClientes"
+import TipoCadastroCliente from "./cadastro/tipoCadastroCliente"
+import TipoListagemClientes from "./listagem/tipoListagemClientes"
 
 export default class Principal extends Processo {
     constructor() {

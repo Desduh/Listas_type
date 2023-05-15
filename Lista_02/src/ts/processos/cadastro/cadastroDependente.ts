@@ -1,8 +1,8 @@
-import Processo from "../abstracoes/processo";
-import Armazem from "../dominio/armazem";
-import { TipoDocumento } from "../enumeracoes/TipoDocumento";
-import Cliente from "../modelos/cliente";
-import Endereco from "../modelos/endereco";
+import Processo from "../../abstracoes/processo";
+import Armazem from "../../dominio/armazem";
+import { TipoDocumento } from "../../enumeracoes/TipoDocumento";
+import Cliente from "../../modelos/cliente";
+import Endereco from "../../modelos/endereco";
 import CadastrarDocumentosCliente from "./cadastrarDocumentosCliente";
 
 export default class CadastroDependente extends Processo {

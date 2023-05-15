@@ -1,5 +1,5 @@
-import Processo from "../abstracoes/processo";
-import Cliente from "../modelos/cliente";
+import Processo from "../../abstracoes/processo";
+import Cliente from "../../modelos/cliente";
 
 export default class CadastroTelefone extends Processo {
   private cliente: Cliente;

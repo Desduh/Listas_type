@@ -1,6 +1,6 @@
-import Processo from "../abstracoes/processo";
-import MenuCadastroTelefone from "../menus/menuCadastroTelefone";
-import Cliente from "../modelos/cliente";
+import Processo from "../../abstracoes/processo";
+import MenuCadastroTelefone from "../../menus/menuCadastroTelefone";
+import Cliente from "../../modelos/cliente";
 import CadastroTelefone from "./cadastroTelefone";
 
 export default class CadastroClienteTelefone extends Processo {

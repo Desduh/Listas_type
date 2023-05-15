@@ -1,5 +1,5 @@
-import Processo from "../abstracoes/processo";
-import MenuTipoListagemClientes from "../menus/menuTipoListagemClientes";
+import Processo from "../../abstracoes/processo";
+import MenuTipoListagemClientes from "../../menus/menuTipoListagemClientes";
 import ListagemDepedentes from "./listagemDependentes";
 import ListagemTitulares from "./listagemTitulares";
 
