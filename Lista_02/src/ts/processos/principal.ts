@@ -1,6 +1,7 @@
 import Processo from "../abstracoes/processo"
 import MenuPrincipal from "../menus/menuPricipal"
 import TipoCadastroCliente from "./cadastro/tipoCadastroCliente"
+import DeletarCliente from "./deletar/deletarCliente"
 import TipoEditarClientes from "./editar/tipoEditarClientes"
 import TipoListagemClientes from "./listagem/tipoListagemClientes"
 
@@ -27,6 +28,8 @@ export default class Principal extends Processo {
                 this.processo.processar()
                 break
             case 4:
+                this.processo = new DeletarCliente()
+                this.processo.processar()
                 break
             case 0:
                 this.execucao = false
