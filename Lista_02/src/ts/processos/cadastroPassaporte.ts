@@ -12,8 +12,6 @@ export default class cadastroPassaporte extends Processo{
     processar(): void {
         let numero = this.entrada.receberTexto('Numero do Passaporte: ')
         let passaporte = new Documento(numero, TipoDocumento.Passaporte, new Date("00-00-0000"))
-        this.cliente.Documentos.push(passaporte)
-        console.log("Passaporte cadastrado :)");
-        
+        this.cliente.Documentos.push(passaporte)        
     }
 }
