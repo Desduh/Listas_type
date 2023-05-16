@@ -10,6 +10,7 @@ export default class ListagemTitularDependente extends Processo {
   private impressor!: Impressor;
   constructor() {
     super();
+    this.execucao = false;
     this.clientes = Armazem.InstanciaUnica.Clientes;
   }
   processar(): void {
@@ -22,9 +23,13 @@ export default class ListagemTitularDependente extends Processo {
                 if (docFilter.Numero === cpfDependente) {
                     this.impressor = new ImpressaorCliente(clienteMap)
                     console.log(this.impressor.imprimir())
+                    this.execucao = true;
                 }
             })
         })
     })
+    if (!this.execucao) {
+      console.log("Não há cliente com esse CPF :(" );
+    }
   }
 }

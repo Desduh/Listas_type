@@ -14,14 +14,14 @@ export default class DeletarCliente extends Processo {
   processar(): void {
     while (this.execucao) {
       if (this.cliente.length == 0) {
-        console.log("Não há clientes :(");
+        console.log("Não há clientes :(" );
         this.execucao = false;
       } else {
         this.cliente.forEach((clientesForEach) => {
-          clientesForEach.Documentos.forEach((docsForEach) => {
-            console.log(
-              `Nome: ${clientesForEach.Nome}\n CPF: ${docsForEach.Numero} `
-            );
+          clientesForEach.Documentos.filter((docFilter) => {
+            if (docFilter.Tipo === TipoDocumento.CPF) {
+                console.log(`Nome: ${clientesForEach.Nome}\n CPF: ${docFilter.Numero} `);
+            }
           });
         });
         this.cliente.forEach((clientesForEach) => {
@@ -35,7 +35,7 @@ export default class DeletarCliente extends Processo {
               this.cliente.splice(index, 1);
               this.execucao = false;
               console.log("Cliente excluido com sucesso :)");
-              
+              this.execucao = false;
             } else {
               console.log("Comando não compreendido :(");
               this.execucao = false;
@@ -46,5 +46,3 @@ export default class DeletarCliente extends Processo {
     }
   }
 }
-/* 
-  } */

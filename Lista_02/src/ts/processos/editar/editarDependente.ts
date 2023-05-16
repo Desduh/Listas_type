@@ -25,16 +25,11 @@ export default class EditarDependente extends Processo {
     console.log("Dependentes:");
     this.clientes.map((clienteMap) => {
       clienteMap.Documentos.filter((docFilter) => {
-        if (
-          docFilter.Numero === titular &&
-          docFilter.Tipo === TipoDocumento.CPF
-        ) {
+        if (docFilter.Numero === titular && docFilter.Tipo === TipoDocumento.CPF) {
           clienteMap.Dependentes.forEach((dependentesForEach) => {
             dependentesForEach.Documentos.forEach(
               (documentoDependenteForEach) => {
-                console.log(
-                  `${dependentesForEach.Nome} + ${documentoDependenteForEach.Numero}`
-                );
+                console.log(`Nome: ${dependentesForEach.Nome}, CPF: ${documentoDependenteForEach.Numero}`);
               }
             );
             dependentesForEach.Documentos.filter((dependenteFilter) => {

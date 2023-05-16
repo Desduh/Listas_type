@@ -21,7 +21,7 @@ export default class EditarClientes extends Processo {
   processar(): void {
     console.clear();
     let clienteCPF = this.entrada.receberTexto(
-      "Para começar a editar o cliente, forneça o CPF: "
+      "Forneça o CPF do titular que deseja editar: "
     );
     this.clientes.forEach((clienteForEach) => {
       clienteForEach.Documentos.filter((clienteDocFilter) => {
@@ -31,12 +31,8 @@ export default class EditarClientes extends Processo {
         ) {
           while (this.execucao) {
             this.menu.mostrar();
-            console.log(
-              `Cliente Nome:'${clienteForEach.Nome}'\nCliente Cpf:'${clienteDocFilter.Numero}'`
-            );
-            this.opcao = this.entrada.receberNumero(
-              `Digite a opção desejada: `
-            );
+            console.log(`Nome:'${clienteForEach.Nome}'\n CPF:'${clienteDocFilter.Numero}'`);
+            this.opcao = this.entrada.receberNumero(`Digite a opção desejada: `);
             switch (this.opcao) {
               case 1:
                 this.processo = new EditarNome(clienteForEach);
