@@ -4,6 +4,7 @@ import { TipoDocumento } from "../../enumeracoes/TipoDocumento";
 import Cliente from "../../modelos/cliente";
 import Endereco from "../../modelos/endereco";
 import CadastrarDocumentosCliente from "./cadastrarDocumentosCliente";
+import CadastroClienteTelefone from "./cadastroClienteTelefone";
 
 export default class CadastroDependente extends Processo {
   private clientes: Cliente[];
@@ -22,26 +23,22 @@ export default class CadastroDependente extends Processo {
           dadosCPF.Tipo === TipoDocumento.CPF
         ) {
           while (this.execucao) {
-            let nome = this.entrada.receberTexto(
-              "Qual o nome do novo cliente?"
-            );
-            let nomeSocial = this.entrada.receberTexto(
-              "Qual o nome social do novo cliente?"
-            );
-            let dataNascimento = this.entrada.receberData(
-              "Qual a data de nascimento?"
-            );
-            let clienteDependente = new Cliente(
-              nome,
-              nomeSocial,
-              dataNascimento
-            );
+            let nome = this.entrada.receberTexto('Qual o nome?')
+            let nomeSocial = this.entrada.receberTexto('Qual o nome social?')
+            let dataNascimento = this.entrada.receberData('Qual a data de nascimento?')
+            let clienteDependente = new Cliente(nome, nomeSocial, dataNascimento)
+
+            this.processo = new CadastroClienteTelefone(clienteDependente)
+            this.processo.processar()
+
             clienteForEach.Dependentes.push(clienteDependente);
 
             clienteDependente.Endereco = clienteForEach.Endereco.clonar() as Endereco;
             this.processo = new CadastrarDocumentosCliente(clienteDependente);
             this.processo.processar();
             this.execucao = false;
+
+            console.log('Finalizando o cadastro do dependente...')
           }
         }
       })

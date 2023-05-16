@@ -1,10 +1,11 @@
 import Processo from "../../abstracoes/processo";
 import Armazem from "../../dominio/armazem";
 import ImpressaorDependente from "../../impressores/ImpressorDependente";
+import ImpressaorCliente from "../../impressores/impressorCliente";
 import Impressor from "../../interfaces/impressor";
 import Cliente from "../../modelos/cliente";
 
-export default class ListagemDepedentes extends Processo {
+export default class ListagemTitularDependente extends Processo {
   private clientes: Cliente[];
   private impressor!: Impressor;
   constructor() {
@@ -13,17 +14,17 @@ export default class ListagemDepedentes extends Processo {
   }
   processar(): void {
     console.clear();
-    let titular = this.entrada.receberTexto(`Digite o CPF do titular: `);
+    let cpfDependente = this.entrada.receberTexto(`Digite o CPF do dependente: `);
     console.log("Iniciando a listagem de dependentes por titular...");
     this.clientes.map((clienteMap) => {
-      clienteMap.Documentos.filter((docFilter) => {
-        if (docFilter.Numero === titular) {
-          clienteMap.Dependentes.forEach((dependentes) => {
-            this.impressor = new ImpressaorDependente(dependentes);
-            console.log(this.impressor.imprimir());
-          });
-        }
-      });
-    });
+        clienteMap.Dependentes.forEach((dependentes) => {
+            dependentes.Documentos.filter((docFilter) => {
+                if (docFilter.Numero === cpfDependente) {
+                    this.impressor = new ImpressaorCliente(clienteMap)
+                    console.log(this.impressor.imprimir())
+                }
+            })
+        })
+    })
   }
 }

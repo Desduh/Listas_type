@@ -27,7 +27,6 @@ export default class ImpressaorCliente implements Impressor {
     this.impressor = new ImpressorTelefones(this.cliente.Telefones);
     impressao = impressao + `\n${this.impressor.imprimir()}`;
 
-    impressao = impressao + `\n****************************`;
     return impressao;
   }
 }
