@@ -1,3 +1,4 @@
+import Acomodacao from "./acomodacao";
 import Documento from "./documento";
 import Endereco from "./endereco";
 import Telefone from "./telefone";
@@ -12,6 +13,7 @@ export default class Cliente {
   private documentos: Documento[] = [];
   private dependentes: Cliente[] = [];
   private titular!: Cliente;
+  private acomodacao!: Acomodacao | undefined;
 
   constructor(nome: string, nomeSocial: string, dataNascimento: Date) {
     this.nome = nome;
@@ -47,6 +49,9 @@ export default class Cliente {
   public get Titular() {
     return this.titular;
   }
+  public get Acomodacao(): Acomodacao | undefined {
+    return this.acomodacao;
+  }
 
   public set Nome(nome: string) {
     this.nome = nome;
@@ -65,5 +70,8 @@ export default class Cliente {
   }
   public set Documentos(documento: Documento[]) {
     this.documentos = documento;
+  }
+  public set Acomodacao(value: Acomodacao | undefined) {
+    this.acomodacao = value;
   }
 }
