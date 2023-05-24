@@ -1,0 +1,52 @@
+body{
+    height: 100vh;
+    background-color: rgb(240, 230, 174);
+    width: 100%;
+    overflow-x: hidden;
+}
+
+main{
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items:center;
+}
+
+.text{
+    margin-top: 9%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    color: #daa520
+}
+
+.text h2{
+    width: 80%;
+}
+
+.text-box{
+    width: 45%;
+    margin: 2% auto;
+    text-align: center;
+    font-size: 1.1em;
+}
+
+.wrapper{
+    margin-top: 35px;
+    display: flex;
+    justify-content: center;
+    gap: 50px;
+}
+
+.listagem, 
+.cadastrar{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+} 
+
+.mb-2{
+    margin-top: 25px;
+}
