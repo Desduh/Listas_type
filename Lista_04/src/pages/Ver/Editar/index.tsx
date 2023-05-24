@@ -1,5 +1,6 @@
 import { Button } from 'react-bootstrap';
 import NavBar_ from '../../../component/barraNavegacao'
+import '../styles.css'
 import React, { useState } from "react";
 import Axios from "axios";
 import { toast } from 'react-toastify';
@@ -10,6 +11,7 @@ function EditarCliente() {
     const [data_nasc, setData_nasc] = useState('');
     const [cep, setCep] = useState('');
     const [rua, setRua] = useState('');
+    const [numero,setNumero] = useState('');
     const [bairro, setBairro] = useState('');
     const [cidade, setCidade] = useState('');
     const [estado, setEstado] = useState('');
@@ -97,74 +99,98 @@ function EditarCliente() {
               <label>Nome Completo:</label>
               <input placeholder='Insira o nome completo' type="text" onChange={(e) => setNome(e.target.value)} />
             </div>
-            <div className="field">
-              <label>Nome social:</label>
-              <input placeholder='Insira o nome social' type="text" onChange={(e) => setNomeSocial(e.target.value)} />
-            </div>
+
             <div className="campo-duplo">
               <div className="field esquerda">
+                <label>Nome social:</label>
+                <input placeholder='Insira o nome social' type="text" onChange={(e) => setNomeSocial(e.target.value)} />
+              </div>
+              <div className="field direita">
                 <label>Nascimento:</label>
                 <input type="date" onChange={(e) => setData_nasc(e.target.value)} />
               </div>
             </div>
-            <div className="field direita">
-                <label>CPF:</label>
-                <input type="text" placeholder='XXX.XXX.XXX-XX' onChange={(e) => setCpf(e.target.value)} />
-            </div>
-            <div className="field direita">
-                <label>Passaporte:</label>
-                <input type="text" placeholder='XXX.XXX.XXX-XX' onChange={(e) => setPassaporte(e.target.value)} />
-            </div>
-            {formRgs.map((e, index) => (
-              <React.Fragment key={index}>
-                <div className="field">
-                  <label>RG:</label>
-                  <input type="text" placeholder='XX.XXX.XXX-X' onChange={(e) => setRg(e.target.value)} />
-                </div>
-                <div className="field">
-                  <label>RG data de emissao:</label>
-                  <input type="date" onChange={(e) => setDataRg(e.target.value)} />
-                </div>
-              </React.Fragment>
-            ))}
+
             {formTelefones.map((e, index) => (
               <div className="field" key={index}>
                 <label>Telefone:</label>
                 <input placeholder='XX XXXXXXXX' type="text" onChange={(e) => setTelefone(e.target.value)} />
               </div>
             ))}
-            <div className="field direita">
+
+            <div className="btns">
+              <Button className="add add-color" variant="outline-dark" type="button" onClick={() => addFormTell()}>Adicionar Telefone</Button>
+            </div>
+
+            <div className="campo-duplo">
+              <div className="field esquerda">
+                  <label>CPF:</label>
+                  <input type="text" placeholder='XXX.XXX.XXX-XX' onChange={(e) => setCpf(e.target.value)} />
+              </div>
+              <div className="field direita">
+                  <label>Passaporte:</label>
+                  <input type="text" placeholder='XXX.XXX.XXX-XX' onChange={(e) => setPassaporte(e.target.value)} />
+              </div>
+            </div>
+
+            
+            {formRgs.map((e, index) => (
+              <div className="campo-duplo">
+                <React.Fragment key={index}>
+                  <div className="field esquerda">
+                    <label>RG:</label>
+                    <input type="text" placeholder='XX.XXX.XXX-X' onChange={(e) => setRg(e.target.value)} />
+                  </div>
+                  <div className="field direita">
+                    <label>RG data de emissao:</label>
+                    <input type="date" onChange={(e) => setDataRg(e.target.value)} />
+                  </div>
+                </React.Fragment>
+              </div>
+            ))}
+
+            <div className="btns">
+              <Button className="add add-color" variant="outline-dark" type="button" onClick={() => addFormRg()}>Adicionar RG</Button>
+            </div>
+
+            <div className="field ">
                 <label>CEP:</label>
                 <input type="text" placeholder='XXXXX-XXX' value={cep} onChange={(e) => setCep(e.target.value)} onBlur={buscarEndereco} />
             </div>
-            <div className="field">
-              <label>Rua:</label>
-              <input placeholder='Insira o nome da rua' type="text" value={rua} onChange={(e) => setRua(e.target.value)} />
+
+            <div className="campo-duplo">
+              <div className="field esquerda">
+                <label>Rua:</label>
+                <input placeholder='Insira o nome da rua' type="text" value={rua} onChange={(e) => setRua(e.target.value)} />
+              </div>
+              <div className="field direita">
+                <label>Número:</label>
+                <input placeholder='Número' type="text" value={rua} onChange={(e) => setNumero(e.target.value)} />
+              </div>
             </div>
+
             <div className="field">
               <label>Bairro:</label>
               <input placeholder='Insira o nome do bairro' type="text" value={bairro} onChange={(e) => setBairro(e.target.value)} />
             </div>
+
             <div className="field">
               <label>Cidade:</label>
               <input placeholder='Insira o nome da cidade' type="text" value={cidade} onChange={(e) => setCidade(e.target.value)} />
             </div>
-            <div className="field">
-              <label>Estado:</label>
-              <input placeholder='Insira o nome do estado' type="text" value={estado} onChange={(e) => setEstado(e.target.value)} />
+
+            <div className="campo-duplo">
+              <div className="field esquerda">
+                <label>Estado:</label>
+                <input placeholder='Insira o nome do estado' type="text" value={estado} onChange={(e) => setEstado(e.target.value)} />
+              </div>
+              <div className="field direita">
+                <label>País:</label>
+                <input placeholder='Insira o nome do país' type="text" value={pais} onChange={(e) => setPais(e.target.value)} />
+              </div>
             </div>
-            <div className="field">
-              <label>País:</label>
-              <input placeholder='Insira o nome do país' type="text" value={pais} onChange={(e) => setPais(e.target.value)} />
-            </div>
-            <div className="field">
-              <label>Código Postal:</label>
-              <input placeholder='Insira o código postal' type="text" value={postal} onChange={(e) => setPostal(e.target.value)} />
-            </div>
+
             <div className="btns">
-              <Button className="add add-color" variant="outline-dark" type="button" onClick={() => addFormTell()}>Voltar</Button>
-              <Button className="add add-color" variant="outline-dark" type="button" onClick={() => addFormTell()}>Adicionar Telefone</Button>
-              <Button className="add add-color" variant="outline-dark" type="button" onClick={() => addFormRg()}>Adicionar RG</Button>
               <Button className="add add-green" variant="outline-dark" type='submit' onClick={() => handleSubmit()}>Cadastrar</Button>{' '}
             </div>
           </form>
