@@ -1,0 +1,22 @@
+main, body{
+    background-color: rgb(190, 228, 239);
+}
+ul{
+    margin-bottom: 0;
+}
+
+.nav{
+    background-color: rgb(15, 127, 187);
+    box-shadow: #000000;
+    box-shadow: 2px black;
+}
+
+.logo{
+    color: #ffffff;
+    font-size: 2em;
+    margin-left: 80%;
+}
+
+.nav-link, nav-link:hover{
+    color:#ffffff;
+}
