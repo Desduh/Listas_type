@@ -5,22 +5,6 @@ import Axios from "axios";
 import { useState, useEffect } from "react";
 
 function Cliente() {
-    const [list, setList] = useState([]);
-    
-    useEffect(() => {
-      Axios.get(`http://localhost:3001/ver/clientes`).then((resp) => {
-        setList(resp.data);
-      });
-    }, [])
-
-    function handleSubmit(id: number) {     
-        Axios.post("http://localhost:3001/deletar", {
-          id: id,
-          tabela: 'cliente'
-        }).then((res)=>{
-          console.log(res)
-        })    
-    }
 
     return (
         <section>

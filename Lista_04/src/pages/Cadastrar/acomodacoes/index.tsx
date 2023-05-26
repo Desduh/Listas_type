@@ -2,7 +2,6 @@ import { Button } from 'react-bootstrap';
 import NavBar_ from '../../../component/barraNavegacao'
 import '../styles.css'
 import React, { useState } from "react";
-import Axios from "axios";
 import { toast } from 'react-toastify';
 
 function CadastrarAcomodacoes() {
