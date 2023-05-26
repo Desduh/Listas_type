@@ -21,6 +21,7 @@ function Navbar_() {
                                     <NavDropdown.Item onClick={() => navigate("/clientes")}>Clientes</NavDropdown.Item>
                                 </NavDropdown>
                                 <NavDropdown title="Gestão" id="basic-nav-dropdown">
+                                    <NavDropdown.Item onClick={() => navigate("/cadastrar/acomodacoes")}>Cadastrar acomodações</NavDropdown.Item>
                                     <NavDropdown.Item onClick={() => navigate("/acomodacoes")}>Listar acomodações</NavDropdown.Item>
                                     <NavDropdown.Item onClick={() => navigate("/alocar")}>Alocar cliente</NavDropdown.Item>
                                     <NavDropdown.Item onClick={() => navigate("/desalocar")}>Desalocar cliente</NavDropdown.Item>

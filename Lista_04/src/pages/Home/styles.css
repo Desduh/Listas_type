@@ -1,6 +1,5 @@
 body{
     height: 100vh;
-    background-color: rgb(240, 230, 174);
     width: 100%;
     overflow-x: hidden;
 }
@@ -18,7 +17,7 @@ main{
     flex-direction: column;
     align-items: center;
     text-align: center;
-    color: #daa520
+    color: rgb(15, 127, 187);
 }
 
 .text h2{

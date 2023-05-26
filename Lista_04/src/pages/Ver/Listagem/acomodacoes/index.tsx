@@ -28,7 +28,9 @@ function Acomodacoes() {
                 <NavBar_ />
             </header>
             <main>
-                <h1 className="titles"> <strong> Clientes WB </strong> </h1>
+                <div className='text'>
+                    <h1 className="titles"> <strong> Clientes WB </strong> </h1>
+                </div>
                 <div className="tables">
                     <Table striped bordered hover variant="light">
                         <thead  className="titles-table">

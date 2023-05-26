@@ -13,6 +13,7 @@ import Cliente from '../pages/Ver/Listagem/cliente';
 import EditarCliente from '../pages/Ver/Editar';
 import Alocar from '../pages/Ver/Listagem/alocar';
 import Desalocar from '../pages/Ver/Listagem/desalocar';
+import CadastrarAcomodacoes from '../pages/Cadastrar/acomodacoes';
 
 function AppRoutes() {
     return (
@@ -21,6 +22,7 @@ function AppRoutes() {
                 <Route path='/' element={<Home/>}/>
                 <Route path='/clientes' element={<Clientes/>}/>
                 <Route path='/cadastrar/clientes' element={<CadastrarClientes/>}/>
+                <Route path='/cadastrar/acomodacoes' element={<CadastrarAcomodacoes/>}/>
                 <Route path='/acomodacoes' element={<Acomodacoes/>}/>
 
                 <Route path='/cliente' element={<Cliente/>}/>

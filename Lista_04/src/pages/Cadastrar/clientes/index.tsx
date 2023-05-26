@@ -92,7 +92,9 @@ function CadastrarClientes() {
         <NavBar_ />
       </header>
       <main>
-        <h1 className='margin-titulo'><strong>Cadastro de Clientes</strong></h1>
+        <div className='text'>
+          <h1 className='margin-titulo'><strong>Cadastro de Clientes</strong></h1>
+        </div>
         <div className="forms">
           <form>
             <div className="field">

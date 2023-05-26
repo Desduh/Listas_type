@@ -9,13 +9,13 @@ function Home() {
            </header>
            <main>
            <div className="text">
-                    <h1><strong>Salão WB</strong></h1>
+                    <h1><strong>Bem-vindos!, Atlants</strong></h1>
                </div>
                <div className="text-box">
                     <strong>
-                    <p>Seja bem-vindo(a) ao mais novo sistema de cadastro e controle do Grupo WB.</p>
-                    <p>O sistema que foi implatado em todas nossas franquias e vêm facilitando o cotidiano de todas elas.</p>
-                    <p>Aqui você pode cadastrar novos clientes, produtos e/ou serviço, visualizar os que já foram cadastrados e ainda visualizar as listagens dos produtos mais consumidos, dos clientes que mais consumiram entre outras.</p>
+                    É com imensa alegria que recebemos vocês em nosso maravilhoso parque aquático. Preparem-se para uma jornada cheia de diversão, adrenalina e momentos refrescantes que ficarão gravados em suas memórias para sempre.
+
+                    Nossas piscinas cristalinas, escorregadores emocionantes e uma variedade de atrações aquáticas aguardam por vocês. A equipe do Atlants está empenhada em proporcionar uma experiência inesquecível, onde a segurança e o entretenimento são as nossas principais prioridades.
                     </strong>
                 </div>
            </main>
