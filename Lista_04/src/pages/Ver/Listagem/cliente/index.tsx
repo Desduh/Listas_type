@@ -28,9 +28,8 @@ function Cliente() {
                 <NavBar_ />
             </header>
             <main>
-                <h1 className="titles"> <strong> Clientes WB </strong> </h1>
+                <h1 className="text"> <strong> Cliente </strong> </h1>
                 <div className="cliente-dados">
-                    <h1>Dados do Cliente</h1>
                     <label>Nome:</label>
                     <span>João da Silva</span>
 

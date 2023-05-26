@@ -193,6 +193,10 @@ function CadastrarClientes() {
             </div>
 
             <div className="btns">
+              <Button className="add add-green" variant="outline-dark" type='submit' onClick={() => handleSubmit()}>Adicionar dependentes</Button>{' '}
+            </div>
+
+            <div className="btns">
               <Button className="add add-green" variant="outline-dark" type='submit' onClick={() => handleSubmit()}>Cadastrar</Button>{' '}
             </div>
           </form>
