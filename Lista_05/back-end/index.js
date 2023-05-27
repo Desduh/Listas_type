@@ -8,7 +8,7 @@ const client = new cassandra.Client({
 });
 
 async function criarTabelaClientes() {
-  const query = "CREATE TABLE IF NOT EXISTS atlantis.clientes (id uuid PRIMARY KEY, nome text, nome_social text, nascimento date, cpf text, passaporte text);";
+  const query = "CREATE TABLE IF NOT EXISTS atlantis.clientes (id uuid PRIMARY KEY, nome text, nome_social text, nascimento date, cpf text, passaporte text, titular boolean);";
   return client.execute(query);
 }
 
@@ -70,8 +70,8 @@ const id = uuidv4();
 async function inserirUsuario(nome, nomeSocial, nascimento, cpf, passaporte, rgs, telefones, dependentes) {
   // const id = uuidv4();
 
-  const queryInserirCliente = 'INSERT INTO atlantis.clientes (id, nome, nome_social, nascimento, cpf, passaporte) VALUES (?, ?, ?, ?, ?, ?)';
-  const parametrosCliente = [id, nome, nomeSocial, nascimento, cpf, passaporte];
+  const queryInserirCliente = 'INSERT INTO atlantis.clientes (id, nome, nome_social, nascimento, cpf, passaporte, titular) VALUES (?, ?, ?, ?, ?, ?, ?)';
+  const parametrosCliente = [id, nome, nomeSocial, nascimento, cpf, passaporte, true];
   await client.execute(queryInserirCliente, parametrosCliente, { prepare: true });
 
   for (const rg of rgs) {
@@ -98,8 +98,8 @@ async function inserirUsuario(nome, nomeSocial, nascimento, cpf, passaporte, rgs
 
   for (const dependente of dependentes) {
     const dependenteId = uuidv4();
-    const queryInserirDependente = 'INSERT INTO atlantis.clientes (id, nome, nome_social, nascimento, cpf, passaporte) VALUES (?, ?, ?, ?, ?, ?)';
-    const parametrosDependente = [dependenteId, dependente.nome, dependente.nomeSocial, dependente.nascimento, dependente.cpf, dependente.passaporte];
+    const queryInserirDependente = 'INSERT INTO atlantis.clientes (id, nome, nome_social, nascimento, cpf, passaporte, titular) VALUES (?, ?, ?, ?, ?, ?, ?)';
+    const parametrosDependente = [dependenteId, dependente.nome, dependente.nomeSocial, dependente.nascimento, dependente.cpf, dependente.passaporte, false];
     await client.execute(queryInserirDependente, parametrosDependente, { prepare: true });
 
     const queryInserirClienteDependente = 'INSERT INTO atlantis.cliente_dependente (id, id_cliente, id_dependente) VALUES (?, ?, ?)';
@@ -206,7 +206,8 @@ async function selectCliente(id) {
     nome_social,
     nascimento,
     cpf,
-    passaporte
+    passaporte,
+    titular
   FROM
     atlantis.clientes
   WHERE
@@ -259,13 +260,15 @@ async function clienteCompleto(id) {
         const resultadoDependente = await selecionarDependente(idDependente);
         return resultadoDependente.first();
       }));
-      usuario.dependentes = dependentesArray.map((dependente) => ({
-        nome: dependente.nome,
-        nome_social: dependente.nome_social,
-        nascimento: dependente.nascimento.toString(),
-        cpf: dependente.cpf,
-        passaporte: dependente.passaporte
-      }));
+      if(dependentesArray[0] != null){
+        usuario.dependentes = dependentesArray.map((dependente) => ({
+          nome: dependente.nome,
+          nome_social: dependente.nome_social,
+          nascimento: dependente.nascimento.toString(),
+          cpf: dependente.cpf,
+          passaporte: dependente.passaporte
+        }));
+      }
     }
   }
   return usuario;
@@ -273,7 +276,7 @@ async function clienteCompleto(id) {
 
 
 
-async function exemplo() {
+async function main() {
   await client.connect();
   await criarTabelaClientes();
   await criarTabelaClienteDependente();
@@ -287,41 +290,9 @@ async function exemplo() {
   await criarTabelaClienteRg();
   await criarIndiceIdClienteRg();
   await criarIndiceClienteIdRg();
-
-  // Exemplo de inserção de um usuário
-  const usuario = {
-    nome: 'John Doe',
-    nomeSocial: 'Jane Doe',
-    nascimento: '1990-01-01',
-    cpf: '123456789',
-    passaporte: 'ABC123',
-    rgs: [
-      { numero: '987654321', emissao: '2020-01-01' },
-      { numero: '567890123', emissao: '2021-01-01' }
-    ],
-    telefones: [
-      { ddd: '11', numero: '999999999' },
-      { ddd: '22', numero: '888888888' }
-    ],
-    dependentes:[
-      {   
-        nome: 'Daniela',
-        nomeSocial: 'Dani',
-        nascimento: '1990-01-01',
-        cpf: '123456789',
-        passaporte: 'ABdf123'
-      }
-    ]
-  };
-
-  await inserirUsuario(usuario.nome, usuario.nomeSocial, usuario.nascimento, usuario.cpf, usuario.passaporte, usuario.rgs, usuario.telefones, usuario.dependentes);
-
-
-  console.log(await clienteCompleto(id));
-
-  await client.shutdown();
+  console.log("tudo ok");
 }
-
+main();
 
 
 
@@ -329,9 +300,111 @@ async function exemplo() {
 const express = require('express');
 const app = express();
 
-app.get('/', (req, res) => {
-  res.send('Hello, World!');
+app.use(express.json()); 
+app.use(express.urlencoded({ extended: false })); 
+
+app.post('/adicionar/cliente', async (req, res) => {
+  try {
+    const usuario = req.body;
+    await inserirUsuario(usuario.nome, usuario.nomeSocial, usuario.nascimento, usuario.cpf, usuario.passaporte, usuario.rgs, usuario.telefones, usuario.dependentes);
+    res.status(200).send('Cliente inserido com sucesso!');
+  } catch (error) {
+    console.error('Erro ao inserir o cliente:', error);
+    res.status(500).send('Ocorreu um erro ao inserir o cliente.');
+  }
 });
+
+app.get('/clientes', async (req, res) => {
+  try {
+    const query = 'SELECT * FROM atlantis.clientes';
+    const resultado = await client.execute(query);
+    const clientes = resultado.rows;
+
+    res.status(200).json(clientes);
+  } catch (error) {
+    console.error('Erro ao obter os clientes:', error);
+    res.status(500).send('Ocorreu um erro ao obter os clientes.');
+  }
+});
+
+app.get('/cliente', async (req, res) => {
+  try {
+    const id = req.body.id; 
+    const cliente = await clienteCompleto(id);
+
+    if (Object.keys(cliente).length === 0) {
+      res.status(404).send('Cliente não encontrado.');
+    } else {
+      res.status(200).json(cliente);
+    }
+  } catch (error) {
+    console.error('Erro ao obter o cliente:', error);
+    res.status(500).send('Ocorreu um erro ao obter o cliente.');
+  }
+});
+
+app.delete('/deletar/cliente', async (req, res) => {
+  try {
+    const id = req.body.id;
+
+    const clienteExistente = await selectCliente(id);
+    if (!clienteExistente.first()) {
+      res.status(404).send('Cliente não encontrado.');
+      return;
+    }
+
+    // Excluir os registros de rgs relacionados ao cliente
+    const queryIdClienteRg = 'SELECT id_rg FROM atlantis.cliente_rg WHERE id_cliente = ?';
+    const idClienteRgResult = await client.execute(queryIdClienteRg, [id], { prepare: true });
+    const idsRg = idClienteRgResult.rows.map(row => row.id_rg);
+
+    for (const idRg of idsRg) {
+      const queryExcluirClienteRgReferencia = 'DELETE FROM atlantis.cliente_rg WHERE id = ?';
+      await client.execute(queryExcluirClienteRgReferencia, [idRg], { prepare: true });
+
+      const queryExcluirRg = 'DELETE FROM atlantis.rgs WHERE id = ?';
+      await client.execute(queryExcluirRg, [idRg], { prepare: true });
+    }
+
+    const queryIdClienteTelefone = 'SELECT id_telefone FROM atlantis.cliente_telefone WHERE id_cliente = ?';
+    const idClienteTelefoneResult = await client.execute(queryIdClienteTelefone, [id], { prepare: true });
+    const idsTelefone = idClienteTelefoneResult.rows.map(row => row.id_telefone);
+
+    for (const idTelefone of idsTelefone) {
+      const queryExcluirClienteTelefoneReferencia = 'DELETE FROM atlantis.cliente_telefone WHERE id = ?';
+      await client.execute(queryExcluirClienteTelefoneReferencia, [idTelefone], { prepare: true });
+
+      const queryExcluirTelefone = 'DELETE FROM atlantis.telefones WHERE id = ?';
+      await client.execute(queryExcluirTelefone, [idTelefone], { prepare: true });
+    }
+
+    // Excluir os registros de dependentes relacionados ao cliente
+    const queryIdClienteDependente = 'SELECT id_dependente FROM atlantis.cliente_dependente WHERE id_cliente = ?';
+    const idClienteDependenteResult = await client.execute(queryIdClienteDependente, [id], { prepare: true });
+    const idsDependente = idClienteDependenteResult.rows.map(row => row.id_dependente);
+
+    for (const idDependente of idsDependente) {
+      // Excluir a referência do cliente para o dependente
+      const queryExcluirClienteDependenteReferencia = 'DELETE FROM atlantis.cliente_dependente WHERE id = ?';
+      await client.execute(queryExcluirClienteDependenteReferencia, [idDependente], { prepare: true });
+
+      // Excluir o registro de dependente
+      const queryExcluirDependente = 'DELETE FROM atlantis.clientes WHERE id = ?';
+      await client.execute(queryExcluirDependente, [idDependente], { prepare: true });
+    }
+
+    const queryExcluirDependente = 'DELETE FROM atlantis.clientes WHERE id = ?';
+    await client.execute(queryExcluirDependente, [id], { prepare: true });
+
+    res.status(200).send('Cliente excluído com sucesso!');
+  } catch (error) {
+    console.error('Erro ao excluir o cliente:', error);
+    res.status(500).send('Ocorreu um erro ao excluir o cliente.');
+  }
+});
+
+
+
 
 app.listen(3000, () => {
   console.log('O aplicativo está sendo executado na porta 3000!');
