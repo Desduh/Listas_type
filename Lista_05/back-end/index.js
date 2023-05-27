@@ -12,6 +12,21 @@ async function criarTabelaClientes() {
   return client.execute(query);
 }
 
+async function criarTabelaClienteDependente() {
+  const query = "CREATE TABLE IF NOT EXISTS atlantis.cliente_dependente (id uuid PRIMARY KEY, id_cliente uuid, id_dependente uuid);";
+  return client.execute(query);
+}
+
+async function criarIndiceIdClienteDependente() {
+  const query = "CREATE INDEX IF NOT EXISTS id_depen_cli ON atlantis.cliente_dependente (id_cliente);";
+  return client.execute(query);
+}
+
+async function criarIndiceClienteIdDependente() {
+  const query = "CREATE INDEX IF NOT EXISTS id_cli_depen ON atlantis.cliente_dependente (id_dependente);";
+  return client.execute(query);
+}
+
 async function criarTabelaTelefones() {
   const query = "CREATE TABLE IF NOT EXISTS atlantis.telefones (id uuid PRIMARY KEY, ddd text, numero text);";
   return client.execute(query);
@@ -52,7 +67,7 @@ async function criarIndiceClienteIdRg() {
   return client.execute(query);
 }
 const id = uuidv4();
-async function inserirUsuario(nome, nomeSocial, nascimento, cpf, passaporte, rgs, telefones) {
+async function inserirUsuario(nome, nomeSocial, nascimento, cpf, passaporte, rgs, telefones, dependentes) {
   // const id = uuidv4();
 
   const queryInserirCliente = 'INSERT INTO atlantis.clientes (id, nome, nome_social, nascimento, cpf, passaporte) VALUES (?, ?, ?, ?, ?, ?)';
@@ -79,6 +94,17 @@ async function inserirUsuario(nome, nomeSocial, nascimento, cpf, passaporte, rgs
     const queryInserirClienteTelefone = 'INSERT INTO atlantis.cliente_telefone (id, id_cliente, id_telefone) VALUES (?, ?, ?)';
     const parametrosClienteTelefone = [uuidv4(), id, telefoneId];
     await client.execute(queryInserirClienteTelefone, parametrosClienteTelefone, { prepare: true });
+  }
+
+  for (const dependente of dependentes) {
+    const dependenteId = uuidv4();
+    const queryInserirDependente = 'INSERT INTO atlantis.clientes (id, nome, nome_social, nascimento, cpf, passaporte) VALUES (?, ?, ?, ?, ?, ?)';
+    const parametrosDependente = [dependenteId, dependente.nome, dependente.nomeSocial, dependente.nascimento, dependente.cpf, dependente.passaporte];
+    await client.execute(queryInserirDependente, parametrosDependente, { prepare: true });
+
+    const queryInserirClienteDependente = 'INSERT INTO atlantis.cliente_dependente (id, id_cliente, id_dependente) VALUES (?, ?, ?)';
+    const parametrosClienteDependente = [uuidv4(), id, dependenteId];
+    await client.execute(queryInserirClienteDependente, parametrosClienteDependente, { prepare: true });
   }
 }
 
@@ -140,6 +166,39 @@ async function selecionarClienteTelefone(id) {
   return resultado;
 }
 
+async function selecionarDependente(id) {
+  const querySelecionarDependente = `
+  SELECT
+    nome,
+    nome_social,
+    nascimento,
+    cpf,
+    passaporte
+  FROM
+    atlantis.clientes
+  WHERE
+    id = ?
+  `;
+  const parametros = [id];
+  const resultado = await client.execute(querySelecionarDependente, parametros, { prepare: true });
+  return resultado;
+}
+
+async function selecionarClienteDependente(id) {
+  const querySelecionarClienteDependente = `
+  SELECT
+    id_dependente
+  FROM
+    atlantis.cliente_dependente
+  WHERE
+    id_cliente = ?
+  `;
+  const parametros = [id];
+  const resultado = await client.execute(querySelecionarClienteDependente, parametros, { prepare: true });
+  return resultado;
+}
+
+
 async function selectCliente(id) {
   const querySelecionarCliente = `
   SELECT
@@ -160,46 +219,66 @@ async function selectCliente(id) {
 
 // funções para o front
 async function clienteCompleto(id) {
-  var usuario = {}
+  const usuario = {};
   const resultadoUsuario = await selectCliente(id);
   if (resultadoUsuario && resultadoUsuario.first()) {
     const usuarioOld = resultadoUsuario.first();
-    usuario = {
-      nome: usuarioOld.nome, 
-      nome_social: usuarioOld.nome_social, 
-      nascimento: usuarioOld.nascimento.toString(), 
-      cpf: usuarioOld.cpf, 
-      passaporte: usuarioOld.passaporte
-    }
-    const resultadoIdRgs = await selecionarClienteRg(id);
+    usuario.nome = usuarioOld.nome;
+    usuario.nome_social = usuarioOld.nome_social;
+    usuario.nascimento = usuarioOld.nascimento.toString();
+    usuario.cpf = usuarioOld.cpf;
+    usuario.passaporte = usuarioOld.passaporte;
+
+    const [resultadoIdRgs, resultadoIdTelefones, resultadoIdDependentes] = await Promise.all([
+      selecionarClienteRg(id),
+      selecionarClienteTelefone(id),
+      selecionarClienteDependente(id)
+    ]);
+
     if (resultadoIdRgs && resultadoIdRgs.rowLength > 0) {
-      const rgsArray = [];
-      for (const row of resultadoIdRgs.rows) {
+      const rgsArray = await Promise.all(resultadoIdRgs.rows.map(async (row) => {
         const idRg = row.id_rg;
         const resultadoRg = await selecionarRg(idRg);
-        rgsArray.push(resultadoRg.first());
-      }
-      usuario.rgs = rgsArray.map(rg => ({ numero: rg.numero, emissao: rg.emissao.toString()  }))
-    } 
+        return resultadoRg.first();
+      }));
+      usuario.rgs = rgsArray.map((rg) => ({ numero: rg.numero, emissao: rg.emissao.toString() }));
+    }
 
-    const resultadoIdTelefones = await selecionarClienteTelefone(id);
     if (resultadoIdTelefones && resultadoIdTelefones.rowLength > 0) {
-      const telefonesArray = [];
-      for (const row of resultadoIdTelefones.rows) {
+      const telefonesArray = await Promise.all(resultadoIdTelefones.rows.map(async (row) => {
         const idTelefone = row.id_telefone;
         const resultadoTelefone = await selecionarTelefone(idTelefone);
-        telefonesArray.push(resultadoTelefone.first());
-      }
-      usuario.telefones = telefonesArray.map(telefone => ({ ddd: telefone.ddd, numero: telefone.numero }))
+        return resultadoTelefone.first();
+      }));
+      usuario.telefones = telefonesArray.map((telefone) => ({ ddd: telefone.ddd, numero: telefone.numero }));
+    }
+
+    if (resultadoIdDependentes && resultadoIdDependentes.rowLength > 0) {
+      const dependentesArray = await Promise.all(resultadoIdDependentes.rows.map(async (row) => {
+        const idDependente = row.id_dependente;
+        const resultadoDependente = await selecionarDependente(idDependente);
+        return resultadoDependente.first();
+      }));
+      usuario.dependentes = dependentesArray.map((dependente) => ({
+        nome: dependente.nome,
+        nome_social: dependente.nome_social,
+        nascimento: dependente.nascimento.toString(),
+        cpf: dependente.cpf,
+        passaporte: dependente.passaporte
+      }));
     }
   }
-  return usuario
+  return usuario;
 }
+
 
 
 async function exemplo() {
   await client.connect();
   await criarTabelaClientes();
+  await criarTabelaClienteDependente();
+  await criarIndiceIdClienteDependente();
+  await criarIndiceClienteIdDependente();
   await criarTabelaTelefones();
   await criarTabelaClienteTelefone();
   await criarIndiceIdClienteTelefone();
@@ -223,10 +302,19 @@ async function exemplo() {
     telefones: [
       { ddd: '11', numero: '999999999' },
       { ddd: '22', numero: '888888888' }
+    ],
+    dependentes:[
+      {   
+        nome: 'Daniela',
+        nomeSocial: 'Dani',
+        nascimento: '1990-01-01',
+        cpf: '123456789',
+        passaporte: 'ABdf123'
+      }
     ]
   };
 
-  await inserirUsuario(usuario.nome, usuario.nomeSocial, usuario.nascimento, usuario.cpf, usuario.passaporte, usuario.rgs, usuario.telefones);
+  await inserirUsuario(usuario.nome, usuario.nomeSocial, usuario.nascimento, usuario.cpf, usuario.passaporte, usuario.rgs, usuario.telefones, usuario.dependentes);
 
 
   console.log(await clienteCompleto(id));
@@ -234,4 +322,17 @@ async function exemplo() {
   await client.shutdown();
 }
 
-exemplo();
+
+
+
+
+const express = require('express');
+const app = express();
+
+app.get('/', (req, res) => {
+  res.send('Hello, World!');
+});
+
+app.listen(3000, () => {
+  console.log('O aplicativo está sendo executado na porta 3000!');
+});
