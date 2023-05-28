@@ -1,19 +1,9 @@
 import { Button } from 'react-bootstrap';
 import NavBar_ from '../../../component/barraNavegacao'
 import '../styles.css'
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Axios from "axios";
 import { toast } from 'react-toastify';
-
-interface Rg {
-  numero: string;
-  emissao: string;
-}
-
-interface Telefone {
-  ddd: string;
-  numero: string;
-}
 
 function CadastrarClientes() {
     const [nome, setNome] = useState('');
@@ -21,50 +11,69 @@ function CadastrarClientes() {
     const [data_nasc, setData_nasc] = useState('');
     const [cep, setCep] = useState('');
     const [rua, setRua] = useState('');
-    const [numero,setNumero] = useState('');
     const [bairro, setBairro] = useState('');
+    const [numero, setNumero] = useState('');
     const [cidade, setCidade] = useState('');
     const [estado, setEstado] = useState('');
     const [pais, setPais] = useState('');
-    const [postal, setPostal] = useState('');
     const [cpf, setCpf] = useState('');
-    const [rg, setRg] = useState('');
-    const [data_rg, setDataRg] = useState('');
     const [passaporte, setPassaporte] = useState('');
-    const [telefone, setTelefone] = useState('');
-    const [tipo,setTipo] = useState('');
 
-    const [rgs, setRgs] = useState<Rg[]>([{ numero: '', emissao: '' }]);
-    const [telefones, setTelefones] = useState<Telefone[]>([{ ddd: '', numero: '' }]);
+    const [dependentes, setDependentes] = useState([{}]);
+    const [rgs, setRgs] = useState([{}]);
+    const [telefones, setTelefones] = useState([{}]);
+
+    useEffect(() => {
+      if (localStorage.getItem("cliente") !== null) {
+        const cliente = JSON.parse(localStorage.getItem("cliente"));
+        setNome(cliente.nome);
+        setNomeSocial(cliente.nomeSocial);
+        setData_nasc(cliente.nascimento);
+        setCpf(cliente.cpf);
+        setPassaporte(cliente.passaporte);
+        setRgs(cliente.rgs);
+        setTelefones(cliente.telefones);
+        setCep(cliente.cep);
+        setRua(cliente.rua);
+        setBairro(cliente.bairro);
+        setNumero(cliente.numero);
+        setCidade(cliente.cidade);
+        setEstado(cliente.estado);
+        setPais(cliente.pais);
+        setDependentes(cliente.dependentes)
+      }
+    }, []);
+    
   
     let addFormRg = () => {
-      setRgs([...rgs, { numero: '', emissao: '' }])
+      setRgs([...rgs, {}])
     }
     
     let addFormTelefone = () => {
-      setTelefones([...telefones, { ddd: '', numero: '' }])
+      setTelefones([...telefones, {}])
     }
-    
-    function mandaTelefone() {
-    }
-  
+
     let clearAreas = () => {
-      setNome('')
-      setNomeSocial('')
-      setData_nasc('')
-      setPassaporte('')
-      setRua('')
-      setBairro('')
-      setCidade('')
-      setEstado('')
-      setPais('')
-      setPostal('')
-      setTipo('')
-      setCpf('')
-      setRg('')
-      setDataRg('')
-    }
-    function handleSubmit() {
+      setNome('');
+      setNomeSocial('');
+      setData_nasc('');
+      setCep('');
+      setRua('');
+      setBairro('');
+      setNumero('');
+      setCidade('');
+      setEstado('');
+      setPais('');
+      setCpf('');
+      setPassaporte('');
+      setRgs([{}]);
+      setTelefones([{}]);
+      setDependentes([{}]);
+    };
+    
+
+    function handleSubmit(e) {
+      e.preventDefault();
       
       const clienteData = {
         nome: nome,
@@ -74,22 +83,7 @@ function CadastrarClientes() {
         passaporte: passaporte,
         rgs: rgs.map((rg) => ({ numero: rg.numero, emissao: rg.emissao })),
         telefones: telefones.map((telefone) => ({ ddd: telefone.ddd, numero: telefone.numero })),
-        dependentes: [
-          {
-            nome: "Daniela",
-            nomeSocial: "Dani",
-            nascimento: "1990-01-01",
-            cpf: "123456789",
-            passaporte: "ABdf123"
-          },
-          {
-            nome: "Alfredo",
-            nomeSocial: "Dani",
-            nascimento: "1990-01-01",
-            cpf: "123456789",
-            passaporte: "ABdf123"
-          }
-        ]
+        dependentes: dependentes
       };
 
       console.log(clienteData);
@@ -98,10 +92,29 @@ function CadastrarClientes() {
       Axios.post("http://localhost:3001/adicionar/cliente", clienteData)
         .then((res) => {
           console.log(res);
+          localStorage.removeItem("cliente")
+          window.location.reload()
         })
         .catch((error) => {
           console.log(error);
         });
+    }
+
+    function addDependentes(){
+      const clienteData = {
+        nome: nome,
+        nomeSocial: nome_social,
+        nascimento: data_nasc,
+        cpf: cpf,
+        passaporte: passaporte,
+        rgs: rgs.map((rg) => ({ numero: rg.numero, emissao: rg.emissao })),
+        telefones: telefones.map((telefone) => ({ ddd: telefone.ddd, numero: telefone.numero })),
+        dependentes: dependentes
+      };
+
+      localStorage.setItem("cliente", JSON.stringify(clienteData))
+
+      window.location.href = '/cadastrar/dependentes'
     }
     
 
@@ -115,7 +128,6 @@ function CadastrarClientes() {
       setCidade(localidade || '');
       setEstado(uf || '');
       setPais(enderecoPais || '');
-      setPostal(enderecoCep || '');
     } catch (error) {
       console.log(error);
       toast.error('Erro ao buscar o endereço. Verifique o CEP informado.');
@@ -136,17 +148,17 @@ function CadastrarClientes() {
           <form onSubmit={handleSubmit}>
             <div className="field">
               <label>Nome Completo:</label>
-              <input placeholder='Insira o nome completo' type="text" onChange={(e) => setNome(e.target.value)} />
+              <input placeholder='Insira o nome completo' type="text" value={nome} onChange={(e) => setNome(e.target.value)} required/>
             </div>
 
             <div className="campo-duplo">
               <div className="field esquerda">
                 <label>Nome social:</label>
-                <input placeholder='Insira o nome social' type="text" onChange={(e) => setNomeSocial(e.target.value)} />
+                <input placeholder='Insira o nome social' type="text" value={nome_social} onChange={(e) => setNomeSocial(e.target.value)} required/>
               </div>
               <div className="field direita">
                 <label>Nascimento:</label>
-                <input type="date" onChange={(e) => setData_nasc(e.target.value)} />
+                <input type="date" value={data_nasc} onChange={(e) => setData_nasc(e.target.value)} required/>
               </div>
             </div>
 
@@ -162,6 +174,7 @@ function CadastrarClientes() {
                     newTelefones[index].numero = e.target.value;
                     setTelefones(newTelefones);
                   }}
+                  required
                 />
               </div>
             ))}
@@ -180,11 +193,11 @@ function CadastrarClientes() {
             <div className="campo-duplo">
               <div className="field esquerda">
                   <label>CPF:</label>
-                  <input type="text" placeholder='XXX.XXX.XXX-XX' onChange={(e) => setCpf(e.target.value)} />
+                  <input type="text" placeholder='XXX.XXX.XXX-XX' value={cpf} onChange={(e) => setCpf(e.target.value)} required/>
               </div>
               <div className="field direita">
                   <label>Passaporte:</label>
-                  <input type="text" placeholder='XXX.XXX.XXX-XX' onChange={(e) => setPassaporte(e.target.value)} />
+                  <input type="text" placeholder='XXX.XXX.XXX-XX' value={passaporte} onChange={(e) => setPassaporte(e.target.value)} required/>
               </div>
             </div>
 
@@ -201,6 +214,7 @@ function CadastrarClientes() {
                       newRgs[index].numero = e.target.value;
                       setRgs(newRgs);
                     }}
+                    required
                   />
                 </div>
                 <div className="field direita">
@@ -213,6 +227,7 @@ function CadastrarClientes() {
                       newRgs[index].emissao = e.target.value;
                       setRgs(newRgs);
                     }}
+                    required
                   />
                 </div>
               </div>
@@ -231,44 +246,44 @@ function CadastrarClientes() {
 
             <div className="field ">
                 <label>CEP:</label>
-                <input type="text" placeholder='XXXXX-XXX' value={cep} onChange={(e) => setCep(e.target.value)} onBlur={buscarEndereco} />
+                <input type="text" placeholder='XXXXX-XXX' value={cep} onChange={(e) => setCep(e.target.value)} onBlur={buscarEndereco} required/>
             </div>
 
             <div className="campo-duplo">
               <div className="field esquerda">
                 <label>Rua:</label>
-                <input placeholder='Insira o nome da rua' type="text" value={rua} onChange={(e) => setRua(e.target.value)} />
+                <input placeholder='Insira o nome da rua' type="text" value={rua} onChange={(e) => setRua(e.target.value)} required/>
               </div>
               <div className="field direita">
                 <label>Número:</label>
-                <input placeholder='Número' type="text" value={rua} onChange={(e) => setNumero(e.target.value)} />
+                <input placeholder='Número' type="text" value={numero} onChange={(e) => setNumero(e.target.value)} required/>
               </div>
             </div>
 
             <div className="field">
               <label>Bairro:</label>
-              <input placeholder='Insira o nome do bairro' type="text" value={bairro} onChange={(e) => setBairro(e.target.value)} />
+              <input placeholder='Insira o nome do bairro' type="text" value={bairro} onChange={(e) => setBairro(e.target.value)} required/>
             </div>
 
             <div className="field">
               <label>Cidade:</label>
-              <input placeholder='Insira o nome da cidade' type="text" value={cidade} onChange={(e) => setCidade(e.target.value)} />
+              <input placeholder='Insira o nome da cidade' type="text" value={cidade} onChange={(e) => setCidade(e.target.value)} required/>
             </div>
 
             <div className="campo-duplo">
               <div className="field esquerda">
                 <label>Estado:</label>
-                <input placeholder='Insira o nome do estado' type="text" value={estado} onChange={(e) => setEstado(e.target.value)} />
+                <input placeholder='Insira o nome do estado' type="text" value={estado} onChange={(e) => setEstado(e.target.value)} required/>
               </div>
               <div className="field direita">
                 <label>País:</label>
-                <input placeholder='Insira o nome do país' type="text" value={pais} onChange={(e) => setPais(e.target.value)} />
+                <input placeholder='Insira o nome do país' type="text" value={pais} onChange={(e) => setPais(e.target.value)} required/>
               </div>
             </div>
 
-            {/* <div className="btns">
-              <Button className="add add-green" variant="outline-dark" type='submit' onClick={handleSubmit}>Adicionar dependentes</Button>{' '}
-            </div> */}
+            <div className="btns">
+              <Button className="add add-green" variant="outline-dark" type='button' onClick={() => addDependentes()}>Adicionar dependentes</Button>
+            </div>
 
             <div className="btns">
               <Button className="add add-green" variant="outline-dark" type='submit'>Cadastrar</Button>{' '}

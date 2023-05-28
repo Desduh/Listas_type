@@ -14,6 +14,7 @@ import EditarCliente from '../pages/Ver/Editar';
 import Alocar from '../pages/Ver/Listagem/alocar';
 import Desalocar from '../pages/Ver/Listagem/desalocar';
 import CadastrarAcomodacoes from '../pages/Cadastrar/acomodacoes';
+import AddDependentes from '../pages/Cadastrar/dependentes';
 
 function AppRoutes() {
     return (
@@ -23,12 +24,14 @@ function AppRoutes() {
                 <Route path='/clientes' element={<Clientes/>}/>
                 <Route path='/cadastrar/clientes' element={<CadastrarClientes/>}/>
                 <Route path='/cadastrar/acomodacoes' element={<CadastrarAcomodacoes/>}/>
+                <Route path='/cadastrar/dependentes' element={<AddDependentes/>}/>
                 <Route path='/acomodacoes' element={<Acomodacoes/>}/>
 
                 <Route path='/cliente' element={<Cliente/>}/>
                 <Route path='/editar_cliente' element={<EditarCliente/>}/>
                 <Route path='/alocar' element={<Alocar/>}/>
                 <Route path='/desalocar' element={<Desalocar/>}/>
+
             </Routes>
         </Router>
     );
