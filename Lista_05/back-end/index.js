@@ -87,6 +87,11 @@ async function criarTabelaClienteAlocado() {
   return client.execute(query);
 }
 
+async function criarIndiceIdClienteAlocado() {
+  const query = "CREATE INDEX IF NOT EXISTS id_alocado_cli ON atlantis.alocacoes (cliente_id);";
+  return client.execute(query);
+}
+
 const id = uuidv4();
 async function inserirUsuario(nome, nomeSocial, nascimento, cpf, passaporte, rgs, telefones, dependentes, endereco) {
   // const id = uuidv4();
@@ -239,6 +244,11 @@ async function selecionarClienteDependente(id) {
   return resultado;
 }
 
+async function selecionarAlocacao(id) {
+  const query = 'SELECT * FROM atlantis.alocacoes WHERE cliente_id = ?';
+  const resultado = await client.execute(query, [id]);
+  return resultado.rows[0];
+}
 
 async function selectCliente(id) {
   const querySelecionarCliente = `
@@ -347,6 +357,7 @@ async function main() {
   await criarIndiceEnderecoCliente();
   await criarTabelaAcomodacoes();
   await criarTabelaClienteAlocado();
+  await criarIndiceIdClienteAlocado();
   console.log("tudo ok");
 }
 main();
@@ -461,6 +472,28 @@ app.delete('/deletar/cliente', async (req, res) => {
     res.status(500).send('Ocorreu um erro ao excluir o cliente.');
   }
 });
+
+app.get('/clientes-nao-alocados', async (req, res) => {
+  try {
+    const queryClientes = 'SELECT * FROM atlantis.clientes';
+    const resultadoClientes = await client.execute(queryClientes);
+    const clientes = resultadoClientes.rows;
+
+    const clientesFinal = [];
+    for (const cliente of clientes) {
+      const resultadoAlocacao = await selecionarAlocacao(cliente.id);
+      if (!resultadoAlocacao) {
+        clientesFinal.push(cliente);
+      }
+    }
+
+    res.status(200).json(clientesFinal);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Ocorreu um erro ao buscar os clientes não alocados.' });
+  }
+});
+
 
 app.post('/adicionar/acomodacao', async (req, res) => {
   try {
