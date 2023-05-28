@@ -1,8 +1,29 @@
+import { useEffect, useState } from 'react';
 import { Table } from 'react-bootstrap';
+import axios from 'axios';
 import NavBar_ from '../../../../component/barraNavegacao';
 import '../../Listagem/styles.css';
 
+interface Cliente {
+    id: string;
+    nome: string;
+    cpf: string;
+  }
+  
 function Clientes() {
+    const [clientes, setClientes] = useState<Cliente[]>([]);
+
+    useEffect(() => {
+        axios.get('http://localhost:3001/clientes')
+            .then(response => {
+                setClientes(response.data);
+            })
+            .catch(error => {
+                console.log(error);
+            });
+    }, []);
+
+    console.log(clientes);    
 
     return (
         <section>
@@ -14,8 +35,9 @@ function Clientes() {
                     <h1 className="titles"> <strong> Clientes WB </strong> </h1>
                 </div>
                 <div className="tables">
+                {clientes.length > 0 ? (
                     <Table striped bordered hover variant="light">
-                        <thead  className="titles-table">
+                        <thead className="titles-table">
                             <tr>
                                 <th>Nome</th>
                                 <th>CPF</th>
@@ -25,15 +47,23 @@ function Clientes() {
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td> Carlos </td>
-                                <td> 499.858.428-63 </td>
-                                <td> <a className="editar-cps" href={`/cliente`}>Ver</a> </td>
-                                <td> <a className="editar-cps" href={`/editar_cliente`}>Editar</a> </td>
-                                <td> <a className="remover-cps" href='/' type='submit'>Remover</a> </td>                 
-                            </tr>
+                            
+                                {clientes.map(cliente => (
+                                    <tr key={cliente.id}>
+                                        <td>{cliente.nome}</td>
+                                        <td>{cliente.cpf}</td>
+                                        <td><a className="editar-cps" href={`/cliente/${cliente.id}`}>Ver</a></td>
+                                        <td><a className="editar-cps" href={`/editar_cliente/${cliente.id}`}>Editar</a></td>
+                                        <td><a className="remover-cps" href="/" type='submit'>Remover</a></td>
+                                    </tr>
+                                ))}
                         </tbody>
                     </Table>
+                ) : (
+                    <tr>
+                        <td>Sem dados</td>
+                    </tr>
+                )}
                 </div>
             </main>
         </section>
