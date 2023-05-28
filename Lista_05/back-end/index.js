@@ -78,7 +78,12 @@ async function criarIndiceClienteIdRg() {
 }
 
 async function criarTabelaAcomodacoes() {
-  const query = "CREATE TABLE IF NOT EXISTS atlantis.acomodacoes (id uuid PRIMARY KEY, nome text, cama_solteiro int, cama_casal int, suite int, climatizacao boolean, garagem int);";
+  const query = "CREATE TABLE IF NOT EXISTS atlantis.acomodacoes (id uuid PRIMARY KEY, nome text, cama_solteiro int, cama_casal int, suite int, climatizacao boolean, garagem int, disponivel boolean);";
+  return client.execute(query);
+}
+
+async function criarTabelaClienteAlocado() {
+  const query = "CREATE TABLE IF NOT EXISTS atlantis.alocacoes (id uuid PRIMARY KEY, cliente_id uuid, acomodacao_id uuid);";
   return client.execute(query);
 }
 
@@ -341,6 +346,7 @@ async function main() {
   await criarTabelaEndereco();
   await criarIndiceEnderecoCliente();
   await criarTabelaAcomodacoes();
+  await criarTabelaClienteAlocado();
   console.log("tudo ok");
 }
 main();
@@ -548,6 +554,33 @@ app.delete('/deletar/acomodacao', async (req, res) => {
     console.error(error);
     res.status(500).json({ error: 'Erro ao deletar acomodação' });
   }
+});
+
+app.post('/alocar', async (req, res) => {
+  const { clienteId, acomodacaoId } = req.body;
+
+  try {
+    const alocacaoId = uuidv4();
+
+    // Inserir na tabela "alocacoes"
+    const queryInserirAlocacao = 'INSERT INTO atlantis.alocacoes (id, cliente_id, acomodacao_id) VALUES (?, ?, ?)';
+    const parametrosAlocacao = [alocacaoId, clienteId, acomodacaoId];
+    await client.execute(queryInserirAlocacao, parametrosAlocacao, { prepare: true });
+
+    // Alterar a disponibilidade da acomodação para true
+    const queryAtualizarDisponibilidade = 'UPDATE atlantis.acomodacoes SET disponivel = true WHERE id = ?';
+    const parametrosDisponibilidade = [acomodacaoId];
+    await client.execute(queryAtualizarDisponibilidade, parametrosDisponibilidade, { prepare: true });
+
+    res.status(200).json({ message: 'Cliente alocado com sucesso' });
+  } catch (error) {
+    console.error('Erro ao alocar cliente:', error);
+    res.status(500).json({ error: 'Ocorreu um erro ao alocar o cliente' });
+  }
+});
+
+app.listen(3000, () => {
+  console.log('Servidor em execução na porta 3000');
 });
 
 app.listen(3001, () => {
