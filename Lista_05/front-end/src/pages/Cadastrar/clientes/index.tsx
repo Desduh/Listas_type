@@ -5,6 +5,16 @@ import React, { useState } from "react";
 import Axios from "axios";
 import { toast } from 'react-toastify';
 
+interface Rg {
+  numero: string;
+  emissao: string;
+}
+
+interface Telefone {
+  ddd: string;
+  numero: string;
+}
+
 function CadastrarClientes() {
     const [nome, setNome] = useState('');
     const [nome_social, setNomeSocial] = useState('');
@@ -24,15 +34,15 @@ function CadastrarClientes() {
     const [telefone, setTelefone] = useState('');
     const [tipo,setTipo] = useState('');
 
-    const [formRgs, setFormRgs] = useState([{ numero: '', emissao: '' }]);
-    const [formTelefones, setFormTelefones] = useState([{ ddd: '', numero: '' }]);
-
+    const [rgs, setRgs] = useState<Rg[]>([{ numero: '', emissao: '' }]);
+    const [telefones, setTelefones] = useState<Telefone[]>([{ ddd: '', numero: '' }]);
+  
     let addFormRg = () => {
-      setFormRgs([...formRgs, { numero: '', emissao: '' }])
+      setRgs([...rgs, { numero: '', emissao: '' }])
     }
     
-    let addFormTell = () => {
-      setFormTelefones([...formTelefones, { ddd: '', numero: '' }])
+    let addFormTelefone = () => {
+      setTelefones([...telefones, { ddd: '', numero: '' }])
     }
     
     function mandaTelefone() {
@@ -64,8 +74,8 @@ function CadastrarClientes() {
         nascimento: data_nasc,
         cpf: cpf,
         passaporte: passaporte,
-        rgs: formRgs.map((rg) => ({ numero: rg.numero, emissao: rg.emissao })),
-        telefones: formTelefones.map((telefone) => ({ ddd: telefone.ddd, numero: telefone.numero })),
+        rgs: rgs.map((rg) => ({ numero: rg.numero, emissao: rg.emissao })),
+        telefones: telefones.map((telefone) => ({ ddd: telefone.ddd, numero: telefone.numero })),
         dependentes: [
           {
             nome: "Daniela",
@@ -142,15 +152,31 @@ function CadastrarClientes() {
               </div>
             </div>
 
-            {formTelefones.map((e, index) => (
+            {telefones.map((telefone, index) => (
               <div className="field" key={index}>
                 <label>Telefone:</label>
-                <input placeholder='XX XXXXXXXX' type="text" onChange={(e) => setTelefone(e.target.value)} />
+                <input
+                  placeholder='XX XXXXXXXX'
+                  type="text"
+                  value={telefone.numero}
+                  onChange={(e) => {
+                    const newTelefones = [...telefones];
+                    newTelefones[index].numero = e.target.value;
+                    setTelefones(newTelefones);
+                  }}
+                />
               </div>
             ))}
 
             <div className="btns">
-              <Button className="add add-color" variant="outline-dark" type="button" onClick={() => addFormTell()}>Adicionar Telefone</Button>
+              <Button
+                className="add add-color"
+                variant="outline-dark"
+                type="button"
+                onClick={() => addFormTelefone()}
+              >
+                Adicionar Telefone
+              </Button>
             </div>
 
             <div className="campo-duplo">
@@ -164,24 +190,45 @@ function CadastrarClientes() {
               </div>
             </div>
 
-            
-            {formRgs.map((e, index) => (
-              <div className="campo-duplo">
-                <React.Fragment key={index}>
-                  <div className="field esquerda">
-                    <label>RG:</label>
-                    <input type="text" placeholder='XX.XXX.XXX-X' onChange={(e) => setRg(e.target.value)} />
-                  </div>
-                  <div className="field direita">
-                    <label>RG data de emissao:</label>
-                    <input type="date" onChange={(e) => setDataRg(e.target.value)} />
-                  </div>
-                </React.Fragment>
+            {rgs.map((rg, index) => (
+              <div className="campo-duplo" key={index}>
+                <div className="field esquerda">
+                  <label>RG:</label>
+                  <input
+                    type="text"
+                    placeholder='XX.XXX.XXX-X'
+                    value={rg.numero}
+                    onChange={(e) => {
+                      const newRgs = [...rgs];
+                      newRgs[index].numero = e.target.value;
+                      setRgs(newRgs);
+                    }}
+                  />
+                </div>
+                <div className="field direita">
+                  <label>RG data de emissão:</label>
+                  <input
+                    type="date"
+                    value={rg.emissao}
+                    onChange={(e) => {
+                      const newRgs = [...rgs];
+                      newRgs[index].emissao = e.target.value;
+                      setRgs(newRgs);
+                    }}
+                  />
+                </div>
               </div>
             ))}
 
             <div className="btns">
-              <Button className="add add-color" variant="outline-dark" type="button" onClick={() => addFormRg()}>Adicionar RG</Button>
+              <Button
+                className="add add-color"
+                variant="outline-dark"
+                type="button"
+                onClick={() => addFormRg()}
+              >
+                Adicionar RG
+              </Button>
             </div>
 
             <div className="field ">
