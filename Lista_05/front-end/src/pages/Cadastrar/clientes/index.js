@@ -41,6 +41,14 @@ function CadastrarClientes() {
         setEstado(cliente.estado);
         setPais(cliente.pais);
         setDependentes(cliente.dependentes)
+        var endereco = cliente.endereco
+        setCep(endereco.cep)
+        setNumero(endereco.numero)
+        setRua(endereco.locadouro)
+        setCidade(endereco.cidade)
+        setEstado(endereco.estado)
+        setPais(endereco.pais) 
+        setBairro(endereco.bairro) 
       }
     }, []);
     
@@ -51,26 +59,7 @@ function CadastrarClientes() {
     
     let addFormTelefone = () => {
       setTelefones([...telefones, {}])
-    }
-
-    let clearAreas = () => {
-      setNome('');
-      setNomeSocial('');
-      setData_nasc('');
-      setCep('');
-      setRua('');
-      setBairro('');
-      setNumero('');
-      setCidade('');
-      setEstado('');
-      setPais('');
-      setCpf('');
-      setPassaporte('');
-      setRgs([{}]);
-      setTelefones([{}]);
-      setDependentes([{}]);
-    };
-    
+    }    
 
     function handleSubmit(e) {
       e.preventDefault();
@@ -83,7 +72,16 @@ function CadastrarClientes() {
         passaporte: passaporte,
         rgs: rgs.map((rg) => ({ numero: rg.numero, emissao: rg.emissao })),
         telefones: telefones.map((telefone) => ({ ddd: telefone.ddd, numero: telefone.numero })),
-        dependentes: dependentes
+        dependentes: dependentes,
+        endereco: {
+          cep: cep,
+          numero: numero,
+          locadouro: rua, 
+          cidade: cidade, 
+          estado: estado, 
+          pais: pais, 
+          bairro: bairro
+        }
       };
 
       console.log(clienteData);
@@ -109,7 +107,16 @@ function CadastrarClientes() {
         passaporte: passaporte,
         rgs: rgs.map((rg) => ({ numero: rg.numero, emissao: rg.emissao })),
         telefones: telefones.map((telefone) => ({ ddd: telefone.ddd, numero: telefone.numero })),
-        dependentes: dependentes
+        dependentes: dependentes,
+        endereco: {
+          cep: cep,
+          numero: numero,
+          locadouro: rua, 
+          cidade: cidade, 
+          estado: estado, 
+          pais: pais, 
+          bairro: bairro
+        }
       };
 
       localStorage.setItem("cliente", JSON.stringify(clienteData))
@@ -251,8 +258,8 @@ function CadastrarClientes() {
 
             <div className="campo-duplo">
               <div className="field esquerda">
-                <label>Rua:</label>
-                <input placeholder='Insira o nome da rua' type="text" value={rua} onChange={(e) => setRua(e.target.value)} required/>
+                <label>Locadouro:</label>
+                <input placeholder='Insira o nome do locadouro' type="text" value={rua} onChange={(e) => setRua(e.target.value)} required/>
               </div>
               <div className="field direita">
                 <label>Número:</label>
