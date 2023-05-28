@@ -494,6 +494,26 @@ app.get('/clientes-nao-alocados', async (req, res) => {
   }
 });
 
+app.get('/clientes-alocados', async (req, res) => {
+  try {
+    const queryClientes = 'SELECT * FROM atlantis.clientes';
+    const resultadoClientes = await client.execute(queryClientes);
+    const clientes = resultadoClientes.rows;
+
+    const clientesFinal = [];
+    for (const cliente of clientes) {
+      const resultadoAlocacao = await selecionarAlocacao(cliente.id);
+      if (resultadoAlocacao) {
+        clientesFinal.push(cliente);
+      }
+    }
+
+    res.status(200).json(clientesFinal);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Ocorreu um erro ao buscar os clientes não alocados.' });
+  }
+});
 
 app.post('/adicionar/acomodacao', async (req, res) => {
   try {
