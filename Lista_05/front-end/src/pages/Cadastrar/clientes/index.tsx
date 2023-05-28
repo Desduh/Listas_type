@@ -24,26 +24,17 @@ function CadastrarClientes() {
     const [telefone, setTelefone] = useState('');
     const [tipo,setTipo] = useState('');
 
-    const [formRgs, setFormRgs] = useState([{}])
+    const [formRgs, setFormRgs] = useState([{ numero: '', emissao: '' }]);
+    const [formTelefones, setFormTelefones] = useState([{ ddd: '', numero: '' }]);
 
     let addFormRg = () => {
-      setFormRgs([...formRgs, {}])
-      mandaRgs()
+      setFormRgs([...formRgs, { numero: '', emissao: '' }])
     }
-    function mandaRgs() {
-      Axios.post("http://localhost:3001/cadastro/cliente/rgs", {
-        dado: [rg, data_rg]
-      }).then((res) => {
-        console.log(res)
-      })
-    }
-  
-    const [formTelefones, setFormTelefones] = useState([{}])
-  
+    
     let addFormTell = () => {
-        setFormTelefones([...formTelefones, {}])
-        mandaTelefone()
+      setFormTelefones([...formTelefones, { ddd: '', numero: '' }])
     }
+    
     function mandaTelefone() {
     }
   
@@ -63,17 +54,54 @@ function CadastrarClientes() {
       setRg('')
       setDataRg('')
     }
-    function handleSubmit() {
+    function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+      event.preventDefault();
       toast.success('Cadastro feito com sucesso!');
-      mandaRgs()
-      mandaTelefone()
+      
+      const clienteData = {
+        nome: nome,
+        nomeSocial: nome_social,
+        nascimento: data_nasc,
+        cpf: cpf,
+        passaporte: passaporte,
+        rgs: formRgs.map((rg) => ({ numero: rg.numero, emissao: rg.emissao })),
+        telefones: formTelefones.map((telefone) => ({ ddd: telefone.ddd, numero: telefone.numero })),
+        dependentes: [
+          {
+            nome: "Daniela",
+            nomeSocial: "Dani",
+            nascimento: "1990-01-01",
+            cpf: "123456789",
+            passaporte: "ABdf123"
+          },
+          {
+            nome: "Alfredo",
+            nomeSocial: "Dani",
+            nascimento: "1990-01-01",
+            cpf: "123456789",
+            passaporte: "ABdf123"
+          }
+        ]
+      };
+
+      console.log(clienteData);
+      
+    
+      Axios.post("http://localhost:3001/adicionar/cliente", clienteData)
+        .then((res) => {
+          console.log(res);
+        })
+        .catch((error) => {
+          console.log(error);
+        });
     }
+    
 
   const buscarEndereco = async () => {
     try {
       const response = await Axios.get(`https://viacep.com.br/ws/${cep}/json/`);
       const { logradouro, bairro, localidade, uf, pais: enderecoPais, cep: enderecoCep } = response.data;
-
+  
       setRua(logradouro || '');
       setBairro(bairro || '');
       setCidade(localidade || '');
@@ -85,6 +113,7 @@ function CadastrarClientes() {
       toast.error('Erro ao buscar o endereço. Verifique o CEP informado.');
     }
   };
+    
   
   return (
     <section>
@@ -96,7 +125,7 @@ function CadastrarClientes() {
           <h1 className='margin-titulo'><strong>Cadastro de Clientes</strong></h1>
         </div>
         <div className="forms">
-          <form>
+          <form onSubmit={handleSubmit}>
             <div className="field">
               <label>Nome Completo:</label>
               <input placeholder='Insira o nome completo' type="text" onChange={(e) => setNome(e.target.value)} />
@@ -192,12 +221,12 @@ function CadastrarClientes() {
               </div>
             </div>
 
-            <div className="btns">
-              <Button className="add add-green" variant="outline-dark" type='submit' onClick={() => handleSubmit()}>Adicionar dependentes</Button>{' '}
-            </div>
+            {/* <div className="btns">
+              <Button className="add add-green" variant="outline-dark" type='submit' onClick={handleSubmit}>Adicionar dependentes</Button>{' '}
+            </div> */}
 
             <div className="btns">
-              <Button className="add add-green" variant="outline-dark" type='submit' onClick={() => handleSubmit()}>Cadastrar</Button>{' '}
+              <Button className="add add-green" variant="outline-dark" type='submit'>Cadastrar</Button>{' '}
             </div>
           </form>
         </div>
