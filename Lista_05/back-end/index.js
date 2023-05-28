@@ -12,6 +12,16 @@ async function criarTabelaClientes() {
   return client.execute(query);
 }
 
+async function criarTabelaEndereco() {
+  const query = "CREATE TABLE IF NOT EXISTS atlantis.endereco (id uuid PRIMARY KEY, id_cliente uuid, cep text, numero text);";
+  return client.execute(query);
+}
+
+async function criarIndiceEnderecoCliente() {
+  const query = "CREATE INDEX IF NOT EXISTS id_endereco_cli ON atlantis.endereco (id_cliente);";
+  return client.execute(query);
+}
+
 async function criarTabelaClienteDependente() {
   const query = "CREATE TABLE IF NOT EXISTS atlantis.cliente_dependente (id uuid PRIMARY KEY, id_cliente uuid, id_dependente uuid);";
   return client.execute(query);
@@ -67,12 +77,17 @@ async function criarIndiceClienteIdRg() {
   return client.execute(query);
 }
 const id = uuidv4();
-async function inserirUsuario(nome, nomeSocial, nascimento, cpf, passaporte, rgs, telefones, dependentes) {
+async function inserirUsuario(nome, nomeSocial, nascimento, cpf, passaporte, rgs, telefones, dependentes, endereco) {
   // const id = uuidv4();
 
   const queryInserirCliente = 'INSERT INTO atlantis.clientes (id, nome, nome_social, nascimento, cpf, passaporte, titular) VALUES (?, ?, ?, ?, ?, ?, ?)';
   const parametrosCliente = [id, nome, nomeSocial, nascimento, cpf, passaporte, true];
   await client.execute(queryInserirCliente, parametrosCliente, { prepare: true });
+
+  const enderecoId = uuidv4();
+  const queryInserirEndereco = 'INSERT INTO atlantis.endereco (id, id_cliente, cep, numero) VALUES (?, ?, ?, ?)';
+  const parametrosEndereco = [enderecoId, id, endereco.cep, endereco.numero];
+  await client.execute(queryInserirEndereco, parametrosEndereco, { prepare: true });
 
   for (const rg of rgs) {
     const rgId = uuidv4();
@@ -184,6 +199,23 @@ async function selecionarDependente(id) {
   return resultado;
 }
 
+async function selecionarEndereco(id) {
+  const querySelecionarEndereco = `
+  SELECT
+    id,
+    cep,
+    numero
+  FROM
+    atlantis.endereco
+  WHERE
+    id_cliente = ?
+  `;
+
+  const parametros = [id];
+  const resultado = await client.execute(querySelecionarEndereco, parametros, { prepare: true });
+  return resultado;
+}
+
 async function selecionarClienteDependente(id) {
   const querySelecionarClienteDependente = `
   SELECT
@@ -270,9 +302,20 @@ async function clienteCompleto(id) {
         }));
       }
     }
+
+    const resultadoEndereco = await selecionarEndereco(id);
+    if (resultadoEndereco && resultadoEndereco.rowLength > 0) {
+      const endereco = resultadoEndereco.first();
+      usuario.endereco = {
+        numero: endereco.numero,
+        cep: endereco.cep
+      };
+    }
+    
   }
   return usuario;
 }
+
 
 
 
@@ -290,6 +333,8 @@ async function main() {
   await criarTabelaClienteRg();
   await criarIndiceIdClienteRg();
   await criarIndiceClienteIdRg();
+  await criarTabelaEndereco();
+  await criarIndiceEnderecoCliente();
   console.log("tudo ok");
 }
 main();
@@ -308,7 +353,7 @@ app.use(express.urlencoded({ extended: false }));
 app.post('/adicionar/cliente', async (req, res) => {
   try {
     const usuario = req.body;
-    await inserirUsuario(usuario.nome, usuario.nomeSocial, usuario.nascimento, usuario.cpf, usuario.passaporte, usuario.rgs, usuario.telefones, usuario.dependentes);
+    await inserirUsuario(usuario.nome, usuario.nomeSocial, usuario.nascimento, usuario.cpf, usuario.passaporte, usuario.rgs, usuario.telefones, usuario.dependentes, usuario.endereco);
     res.status(200).send('Cliente inserido com sucesso!');
   } catch (error) {
     console.error('Erro ao inserir o cliente:', error);
