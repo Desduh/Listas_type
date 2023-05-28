@@ -13,7 +13,7 @@ async function criarTabelaClientes() {
 }
 
 async function criarTabelaEndereco() {
-  const query = "CREATE TABLE IF NOT EXISTS atlantis.endereco (id uuid PRIMARY KEY, id_cliente uuid, cep text, numero text);";
+  const query = "CREATE TABLE IF NOT EXISTS atlantis.endereco (id uuid PRIMARY KEY, id_cliente uuid, cep text, numero text, locadouro text, cidade text, estado text, pais text, bairro text);";
   return client.execute(query);
 }
 
@@ -85,9 +85,9 @@ async function inserirUsuario(nome, nomeSocial, nascimento, cpf, passaporte, rgs
   await client.execute(queryInserirCliente, parametrosCliente, { prepare: true });
 
   const enderecoId = uuidv4();
-  const queryInserirEndereco = 'INSERT INTO atlantis.endereco (id, id_cliente, cep, numero) VALUES (?, ?, ?, ?)';
-  const parametrosEndereco = [enderecoId, id, endereco.cep, endereco.numero];
-  await client.execute(queryInserirEndereco, parametrosEndereco, { prepare: true });
+  const queryInserirEndereco = 'INSERT INTO atlantis.endereco (id, id_cliente, cep, numero, locadouro, cidade, estado, pais, bairro) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)';
+  const parametrosEndereco = [enderecoId, id, endereco.cep, endereco.numero, endereco.locadouro, endereco.cidade, endereco.estado, endereco.pais, endereco.bairro];
+  await client.execute(queryInserirEndereco, parametrosEndereco, { prepare: true });  
 
   for (const rg of rgs) {
     const rgId = uuidv4();
@@ -202,9 +202,7 @@ async function selecionarDependente(id) {
 async function selecionarEndereco(id) {
   const querySelecionarEndereco = `
   SELECT
-    id,
-    cep,
-    numero
+    *
   FROM
     atlantis.endereco
   WHERE
@@ -292,7 +290,7 @@ async function clienteCompleto(id) {
         const resultadoDependente = await selecionarDependente(idDependente);
         return resultadoDependente.first();
       }));
-      if(dependentesArray[0] != null){
+      if (dependentesArray[0] != null) {
         usuario.dependentes = dependentesArray.map((dependente) => ({
           nome: dependente.nome,
           nome_social: dependente.nome_social,
@@ -307,17 +305,18 @@ async function clienteCompleto(id) {
     if (resultadoEndereco && resultadoEndereco.rowLength > 0) {
       const endereco = resultadoEndereco.first();
       usuario.endereco = {
+        locadouro: endereco.locadouro,
+        cidade: endereco.cidade,
+        estado: endereco.estado,
+        pais: endereco.pais,
+        bairro: endereco.bairro,
         numero: endereco.numero,
         cep: endereco.cep
       };
     }
-    
   }
   return usuario;
 }
-
-
-
 
 async function main() {
   await client.connect();
