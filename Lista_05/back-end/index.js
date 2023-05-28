@@ -613,28 +613,33 @@ app.post('/alocar', async (req, res) => {
   const { clienteId, acomodacaoId } = req.body;
 
   try {
-    const alocacaoId = uuidv4();
+    // Obter os dependentes do cliente
+    const queryObterDependentes = 'SELECT id_dependente FROM atlantis.cliente_dependente WHERE id_cliente = ?';
+    const parametrosDependentes = [clienteId];
+    const resultadoDependentes = await client.execute(queryObterDependentes, parametrosDependentes, { prepare: true });
+    const dependentes = resultadoDependentes.rows.map(row => row.id_dependente);
 
-    // Inserir na tabela "alocacoes"
-    const queryInserirAlocacao = 'INSERT INTO atlantis.alocacoes (id, cliente_id, acomodacao_id) VALUES (?, ?, ?)';
-    const parametrosAlocacao = [alocacaoId, clienteId, acomodacaoId];
-    await client.execute(queryInserirAlocacao, parametrosAlocacao, { prepare: true });
+    // Inserir a alocação para o cliente
+    const alocacaoClienteId = uuidv4();
+    const queryInserirAlocacaoCliente = 'INSERT INTO atlantis.alocacoes (id, cliente_id, acomodacao_id) VALUES (?, ?, ?)';
+    await client.execute(queryInserirAlocacaoCliente, [alocacaoClienteId, clienteId, acomodacaoId], { prepare: true });
 
-    // Alterar a disponibilidade da acomodação para true
+    // Inserir as alocações para os dependentes
+    const queryInserirAlocacaoDependente = 'INSERT INTO atlantis.alocacoes (id, cliente_id, acomodacao_id) VALUES (?, ?, ?)';
+    const parametrosAlocacaoDependentes = dependentes.map(dependenteId => [uuidv4(), dependenteId, acomodacaoId]);
+    await Promise.all(parametrosAlocacaoDependentes.map(parametros => client.execute(queryInserirAlocacaoDependente, parametros, { prepare: true })));
+
+    // Atualizar a disponibilidade da acomodação para true
     const queryAtualizarDisponibilidade = 'UPDATE atlantis.acomodacoes SET disponivel = true WHERE id = ?';
-    const parametrosDisponibilidade = [acomodacaoId];
-    await client.execute(queryAtualizarDisponibilidade, parametrosDisponibilidade, { prepare: true });
+    await client.execute(queryAtualizarDisponibilidade, [acomodacaoId], { prepare: true });
 
-    res.status(200).json({ message: 'Cliente alocado com sucesso' });
+    res.status(200).json({ message: 'Cliente e seus dependentes alocados com sucesso' });
   } catch (error) {
-    console.error('Erro ao alocar cliente:', error);
-    res.status(500).json({ error: 'Ocorreu um erro ao alocar o cliente' });
+    console.error('Erro ao alocar cliente e dependentes:', error);
+    res.status(500).json({ error: 'Ocorreu um erro ao alocar o cliente e seus dependentes' });
   }
 });
 
-app.listen(3000, () => {
-  console.log('Servidor em execução na porta 3000');
-});
 
 app.listen(3001, () => {
   console.log('O aplicativo está sendo executado na porta 3000!');
