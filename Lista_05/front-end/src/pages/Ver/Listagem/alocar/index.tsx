@@ -1,11 +1,35 @@
 import { Button, Table } from 'react-bootstrap';
-import NavBar_ from '../../../../component/barraNavegacao'
-import '../styles.css'
+import NavBar_ from '../../../../component/barraNavegacao';
+import '../styles.css';
 import React, { useEffect, useState } from "react";
 import Axios from "axios";
 import { toast } from 'react-toastify';
 
+interface Cliente {
+    id: number;
+    nome: string;
+    cpf: string;
+    titular: boolean;
+    // Outras propriedades do cliente
+}
+
 function Alocar() {
+    const [clientes, setClientes] = useState<Cliente[]>([]);
+
+    useEffect(() => {
+        const fetchClientes = async () => {
+            try {
+                const response = await Axios.get('http://localhost:3001/clientes-nao-alocados');
+                setClientes(response.data);
+            } catch (error) {
+                toast.error('Erro ao carregar os clientes.');
+            }
+        };
+
+        fetchClientes();
+    }, []);
+
+    const clientesTitulares = clientes.filter(cliente => cliente.titular);
 
     return (
         <section>
@@ -26,11 +50,17 @@ function Alocar() {
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td> Carlos </td>
-                                <td> 499.858.428-63 </td>
-                                <td> <a className="remover-cps" href='/clientes' type='submit'>Opções</a> </td>                 
-                            </tr>
+                            {clientesTitulares.map((cliente) => (
+                                <tr key={cliente.id}>
+                                    <td>{cliente.nome}</td>
+                                    <td>{cliente.cpf}</td>
+                                    <td>
+                                        <a className="remover-cps" href="/clientes" type="submit">
+                                            Opções
+                                        </a>
+                                    </td>
+                                </tr>
+                            ))}
                         </tbody>
                     </Table>
                 </div>
