@@ -64,9 +64,7 @@ function CadastrarClientes() {
       setRg('')
       setDataRg('')
     }
-    function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-      event.preventDefault();
-      toast.success('Cadastro feito com sucesso!');
+    function handleSubmit() {
       
       const clienteData = {
         nome: nome,
