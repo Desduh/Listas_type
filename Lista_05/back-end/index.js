@@ -76,6 +76,12 @@ async function criarIndiceClienteIdRg() {
   const query = "CREATE INDEX IF NOT EXISTS id_rg_cli_rg ON atlantis.cliente_rg (id_rg);";
   return client.execute(query);
 }
+
+async function criarTabelaAcomodacoes() {
+  const query = "CREATE TABLE IF NOT EXISTS atlantis.acomodacoes (id uuid PRIMARY KEY, nome text, cama_solteiro int, cama_casal int, suite int, climatizacao boolean, garagem int);";
+  return client.execute(query);
+}
+
 const id = uuidv4();
 async function inserirUsuario(nome, nomeSocial, nascimento, cpf, passaporte, rgs, telefones, dependentes, endereco) {
   // const id = uuidv4();
@@ -334,6 +340,7 @@ async function main() {
   await criarIndiceClienteIdRg();
   await criarTabelaEndereco();
   await criarIndiceEnderecoCliente();
+  await criarTabelaAcomodacoes();
   console.log("tudo ok");
 }
 main();
@@ -446,6 +453,100 @@ app.delete('/deletar/cliente', async (req, res) => {
   } catch (error) {
     console.error('Erro ao excluir o cliente:', error);
     res.status(500).send('Ocorreu um erro ao excluir o cliente.');
+  }
+});
+
+app.post('/adicionar/acomodacao', async (req, res) => {
+  try {
+    const acomodacao = req.body;
+    const id = uuidv4();
+
+    const query = 'INSERT INTO atlantis.acomodacoes (id, nome, cama_solteiro, cama_casal, suite, climatizacao, garagem) VALUES (?, ?, ?, ?, ?, ?, ?)';
+    const parametros = [id, acomodacao.nome, acomodacao.cama_solteiro, acomodacao.cama_casal, acomodacao.suite, acomodacao.climatizacao, acomodacao.garagem];
+    await client.execute(query, parametros, { prepare: true });
+
+    res.json({ message: 'Acomodação adicionada com sucesso' });
+  } catch (error) {
+    console.error('Erro ao adicionar acomodação:', error);
+    res.status(500).json({ error: 'Erro ao adicionar acomodação' });
+  }
+});
+
+app.get('/acomodacoes', async (req, res) => {
+  try {
+    const query = 'SELECT * FROM atlantis.acomodacoes';
+    const resultado = await client.execute(query);
+    const acomodacoes = resultado.rows;
+    res.json(acomodacoes);
+  } catch (error) {
+    console.error('Erro ao obter as acomodações:', error);
+    res.status(500).json({ error: 'Erro ao obter as acomodações' });
+  }
+});
+
+app.get('/acomodacao', async (req, res) => {
+  try {
+    const { id } = req.body;
+
+    const querySelecionarAcomodacao = `
+      SELECT
+        id,
+        nome,
+        cama_solteiro,
+        cama_casal,
+        suite,
+        climatizacao,
+        garagem
+      FROM
+        atlantis.acomodacoes
+      WHERE
+        id = ?
+    `;
+    const parametros = [id];
+    const resultado = await client.execute(querySelecionarAcomodacao, parametros, { prepare: true });
+
+    if (resultado && resultado.first()) {
+      const acomodacao = resultado.first();
+      const acomodacaoObjeto = {
+        id: acomodacao.id,
+        nome: acomodacao.nome,
+        cama_solteiro: acomodacao.cama_solteiro,
+        cama_casal: acomodacao.cama_casal,
+        suite: acomodacao.suite,
+        climatizacao: acomodacao.climatizacao,
+        garagem: acomodacao.garagem
+      };
+      res.json(acomodacaoObjeto);
+    } else {
+      res.status(404).json({ error: 'Acomodação não encontrada' });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Erro ao buscar acomodação' });
+  }
+});
+
+app.delete('/deletar/acomodacao', async (req, res) => {
+  try {
+    const { id } = req.body;
+
+    const queryDeletarAcomodacao = `
+      DELETE FROM
+        atlantis.acomodacoes
+      WHERE
+        id = ?
+    `;
+    const parametros = [id];
+    const resultado = await client.execute(queryDeletarAcomodacao, parametros, { prepare: true });
+
+    if (resultado && resultado.wasApplied()) {
+      res.json({ message: 'Acomodação deletada com sucesso' });
+    } else {
+      res.status(404).json({ error: 'Acomodação não encontrada' });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Erro ao deletar acomodação' });
   }
 });
 
