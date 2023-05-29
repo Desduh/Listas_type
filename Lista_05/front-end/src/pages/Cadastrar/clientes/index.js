@@ -188,14 +188,13 @@ function CadastrarClientes() {
             ))}
 
             <div className="btns">
-              <Button
-                className="add add-color"
-                variant="outline-dark"
+              <a
+                id='add'
                 type="button"
                 onClick={() => addFormTelefone()}
               >
-                <GrFormAdd color='black' size={23}/> Telefone
-              </Button>
+                Telefone<GrFormAdd color='black' size={23}/> 
+              </a>
             </div>
 
             <div className="campo-duplo">
@@ -242,14 +241,13 @@ function CadastrarClientes() {
             ))}
 
             <div className="btns">
-              <Button
-                className="add add-color"
-                variant="outline-dark"
+              <a
+                id='add'
                 type="button"
                 onClick={() => addFormRg()}
               >
-                <GrFormAdd color='black' size={23}/> RG
-              </Button>
+                RG<GrFormAdd color='black' size={23}/> 
+              </a>
             </div>
 
             <div className="field ">
@@ -290,7 +288,7 @@ function CadastrarClientes() {
             </div>
 
             <div className="btns">
-              <Button className="add add-color" variant="outline-dark" type='button' onClick={() => addDependentes()}><GrFormAdd color='black' size={23}/> Dependentes</Button>
+              <a id='add' type='button' onClick={() => addDependentes()}>Dependentes<GrFormAdd color='black' size={23}/></a>
             </div>
 
             <div className="btns">
