@@ -32,6 +32,10 @@ function Alocar() {
 
     const clientesTitulares = clientes.filter(cliente => cliente.titular);
 
+    function handleSubmit(id: string) {
+        window.location.href = '/amodacoes_disponiveis'
+    }
+
     return (
         <section>
             <header>
@@ -59,7 +63,7 @@ function Alocar() {
                                         <Button
                                         className="cps"
                                         id="transparente"
-                                        // onClick={}
+                                        onClick={() => handleSubmit(cliente.id.toString())}
                                         >
                                             <RiHome4Line color='black' size={28}/>
                                         </Button>
