@@ -4,6 +4,7 @@ import '../styles.css';
 import React, { useEffect, useState } from "react";
 import Axios from "axios";
 import { toast } from 'react-toastify';
+import { RiHome4Line } from "react-icons/ri";
 
 interface Cliente {
     id: number;
@@ -55,9 +56,13 @@ function Alocar() {
                                     <td>{cliente.nome}</td>
                                     <td>{cliente.cpf}</td>
                                     <td>
-                                        <a className="remover-cps" href="/clientes" type="submit">
-                                            Opções
-                                        </a>
+                                        <Button
+                                        className="cps"
+                                        id="transparente"
+                                        // onClick={}
+                                        >
+                                            <RiHome4Line color='black' size={28}/>
+                                        </Button>
                                     </td>
                                 </tr>
                             ))}

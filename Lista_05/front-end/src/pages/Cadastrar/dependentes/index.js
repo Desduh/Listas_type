@@ -2,6 +2,7 @@ import { Button } from 'react-bootstrap';
 import NavBar_ from '../../../component/barraNavegacao';
 import '../styles.css';
 import React, { useEffect, useState } from "react";
+import { GrFormAdd } from "react-icons/gr";
 
 export default function AddDependentes() {
 
@@ -114,11 +115,13 @@ export default function AddDependentes() {
                     />
                   </div>
                 </div>
+                <br></br>
+                <br></br>
               </div>
             ))}
             <div className="btns">
-              <Button className="add add-green" variant="outline-dark" type="button" onClick={() => addDependente()}>Adicionar dependente</Button>
-              <Button className="add add-green" variant="outline-dark" type='submit'>Cadastrar</Button>{' '}
+              <Button className="add add-green" variant="outline-dark" type="button" onClick={() => addDependente()}><GrFormAdd color='black' size={23}/> Dependentes</Button>
+              <Button className="add add-green" variant="outline-dark" type='submit'>Cadastrar dependentes</Button>{' '}
             </div>
           </form>
         </div>

@@ -3,6 +3,7 @@ import { Table, Button } from 'react-bootstrap';
 import axios from 'axios';
 import NavBar_ from '../../../../component/barraNavegacao';
 import '../../Listagem/styles.css';
+import { FiTrash } from "react-icons/fi";
 
 function Acomodacoes() {
   const [acomodacoes, setAcomodacoes] = useState([]);
@@ -56,10 +57,11 @@ function Acomodacoes() {
                   <td>{acomodacao.suite}</td>
                   <td>
                     <Button
-                      variant="danger"
+                      className="cps"
+                      id="transparente"
                       onClick={() => handleDelete(acomodacao.id)}
                     >
-                      Apagar
+                      <FiTrash color='red' size={23}/>
                     </Button>
                   </td>
                 </tr>

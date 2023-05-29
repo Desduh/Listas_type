@@ -3,6 +3,7 @@ import { Table } from 'react-bootstrap';
 import axios from 'axios';
 import NavBar_ from '../../../../component/barraNavegacao';
 import '../../Listagem/styles.css';
+import { FiEdit3, FiTrash } from "react-icons/fi";
 
 interface Cliente {
   id: string;
@@ -60,8 +61,7 @@ function Clientes() {
                 <tr>
                   <th>Nome</th>
                   <th>CPF</th>
-                  <th>Ver</th>
-                  <th>Editar</th>
+                  <th>Ver e Editar</th>
                   <th>Excluir</th>
                 </tr>
               </thead>
@@ -71,18 +71,13 @@ function Clientes() {
                     <td>{cliente.nome}</td>
                     <td>{cliente.cpf}</td>
                     <td>
-                      <a className="editar-cps" href={`/cliente/${cliente.id}`}>
-                        Ver
-                      </a>
+                      <button className="cps" onClick={() => removerCliente(cliente.id)}>
+                        <FiEdit3 color='black' size={23}/>
+                      </button>
                     </td>
                     <td>
-                      <a className="editar-cps" href={`/editar_cliente/${cliente.id}`}>
-                        Editar
-                      </a>
-                    </td>
-                    <td>
-                      <button className="remover-cps" onClick={() => removerCliente(cliente.id)}>
-                        Remover
+                      <button className="cps" onClick={() => removerCliente(cliente.id)}>
+                        <FiTrash color='red' size={23}/>
                       </button>
                     </td>
                   </tr>

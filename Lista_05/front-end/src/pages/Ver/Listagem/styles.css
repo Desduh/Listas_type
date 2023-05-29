@@ -1,6 +1,6 @@
-main h1{
-    margin-top: 50px;
-} 
+button{
+    background-color: transparent;
+}
 
 .titles{
     align-items: center;
@@ -56,12 +56,14 @@ main h1{
     text-decoration: none;
 }
 
-.remover-cps{
-    background-color: #e04c27b7;
-    color: rgb(255, 255, 255);
+.cps{
+    background-color: none !important;
+    border: none;
     padding: 1% 4%;
-    border-radius: 6px;
     text-decoration: none;
+}
+#transparente {
+    background-color: transparent;
 }
 
 .submit{

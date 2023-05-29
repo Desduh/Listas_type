@@ -4,6 +4,7 @@ import '../styles.css'
 import React, { useEffect, useState } from "react";
 import Axios from "axios";
 import { toast } from 'react-toastify';
+import { GrFormAdd } from "react-icons/gr";
 
 function CadastrarClientes() {
     const [nome, setNome] = useState('');
@@ -193,7 +194,7 @@ function CadastrarClientes() {
                 type="button"
                 onClick={() => addFormTelefone()}
               >
-                Adicionar Telefone
+                <GrFormAdd color='black' size={23}/> Telefone
               </Button>
             </div>
 
@@ -247,7 +248,7 @@ function CadastrarClientes() {
                 type="button"
                 onClick={() => addFormRg()}
               >
-                Adicionar RG
+                <GrFormAdd color='black' size={23}/> RG
               </Button>
             </div>
 
@@ -289,7 +290,7 @@ function CadastrarClientes() {
             </div>
 
             <div className="btns">
-              <Button className="add add-green" variant="outline-dark" type='button' onClick={() => addDependentes()}>Adicionar dependentes</Button>
+              <Button className="add add-color" variant="outline-dark" type='button' onClick={() => addDependentes()}><GrFormAdd color='black' size={23}/> Dependentes</Button>
             </div>
 
             <div className="btns">

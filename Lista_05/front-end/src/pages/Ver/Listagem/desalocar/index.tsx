@@ -3,7 +3,7 @@ import NavBar_ from '../../../../component/barraNavegacao'
 import '../styles.css'
 import React, { useEffect, useState } from "react";
 import Axios from "axios";
-import { toast } from 'react-toastify';
+import { LuClipboardX } from "react-icons/lu";
 
 function Desalocar() {
 
@@ -29,7 +29,16 @@ function Desalocar() {
                             <tr>
                                 <td> Carlos </td>
                                 <td> 499.858.428-63 </td>
-                                <td> <a className="remover-cps" href='/clientes' type='submit'>x</a> </td>                 
+                                <td>
+                                <Button
+                                className="cps"
+                                id="transparente"
+                                // onClick={}
+                                >
+                                    <LuClipboardX color='black' size={28}/>
+                                </Button>
+                                </td>   
+                                              
                             </tr>
                         </tbody>
                     </Table>
