@@ -11,7 +11,6 @@ interface Cliente {
     nome: string;
     cpf: string;
     titular: boolean;
-    // Outras propriedades do cliente
 }
 
 function Alocar() {
@@ -33,6 +32,7 @@ function Alocar() {
     const clientesTitulares = clientes.filter(cliente => cliente.titular);
 
     function handleSubmit(id: string) {
+        localStorage.setItem("id_cliente", id);
         window.location.href = '/amodacoes_disponiveis'
     }
 

@@ -3,7 +3,7 @@ import { Table, Button } from 'react-bootstrap';
 import axios from 'axios';
 import NavBar_ from '../../../../component/barraNavegacao';
 import '../../Listagem/styles.css';
-import { FiTrash } from "react-icons/fi";
+import { LuCheck } from "react-icons/lu";
 
 interface Acomodacao {
     id: string;
@@ -28,14 +28,23 @@ function AcomodacaoVazia() {
       .catch((error) => console.log(error));
   }, []);
 
-  const handleDelete = (id: string) => {
-    axios.delete('http://localhost:3001/deletar/acomodacao', { data: { id } })
+  const id_cliente = localStorage.getItem("id_cliente");
+
+  const handleAclocar = (id: string) => {
+    const data = {
+      clienteId: id_cliente,
+      acomodacaoId: id
+    };
+
+    axios.post('http://localhost:3001/alocar', data)
       .then((response) => {
-        axios.get('http://localhost:3001/acomodacoes')
-        .then((response) => setAcomodacoes(response.data))
-        .catch((error) => console.log(error));
+        console.log(response.data);
       })
-      .catch((error) => console.log(error));
+      .catch((error) => {
+        console.log(error);
+      });
+
+      window.location.href = '/alocar'
   };
 
   return (
@@ -45,7 +54,7 @@ function AcomodacaoVazia() {
       </header>
       <main>
         <div className='text'>
-          <h1 className="titles"> <strong> Clientes WB </strong> </h1>
+          <h1 className="titles"> <strong> Acomodação disponível </strong> </h1>
         </div>
         <div className="tables">
           <Table striped bordered hover variant="light">
@@ -57,7 +66,7 @@ function AcomodacaoVazia() {
                 <th>Climatização</th>
                 <th>Garagem</th>
                 <th>Suite</th>
-                <th>Apagar</th>
+                <th>Acomodar</th>
               </tr>
             </thead>
             <tbody>
@@ -73,9 +82,9 @@ function AcomodacaoVazia() {
                     <Button
                       className="cps"
                       id="transparente"
-                      onClick={() => handleDelete(acomodacao.id)}
+                      onClick={() => handleAclocar(acomodacao.id)}
                     >
-                      <FiTrash color='red' size={23}/>
+                      <LuCheck color='black' size={23}/>
                     </Button>
                   </td>
                 </tr>

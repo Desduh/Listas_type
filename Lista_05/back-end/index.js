@@ -339,6 +339,33 @@ async function clienteCompleto(id) {
   return usuario;
 }
 
+async function desalocarCliente(idCliente) {
+  const querySelecionarAlocacao = 'SELECT * FROM atlantis.alocacoes WHERE cliente_id = ?';
+  const resultadoAlocacao = await client.execute(querySelecionarAlocacao, [idCliente]);
+
+  if (resultadoAlocacao.rowLength === 0) {
+    return;
+  }
+
+  const queryObterDependentes = 'SELECT id_dependente FROM atlantis.cliente_dependente WHERE id_cliente = ?';
+  const parametrosDependentes = [idCliente];
+  const resultadoDependentes = await client.execute(queryObterDependentes, parametrosDependentes, { prepare: true });
+  if (resultadoDependentes.rowLength !== 0) {
+    const dependentes = resultadoDependentes.rows.map(row => row.id_dependente);
+
+    dependentes.map(dependenteId => desalocarCliente(dependenteId));
+  }
+
+  const alocacao = resultadoAlocacao.first();
+  const acomodacaoId = alocacao.acomodacao_id;
+
+  const queryExcluirAlocacao = 'DELETE FROM atlantis.alocacoes WHERE id = ?';
+  await client.execute(queryExcluirAlocacao, [alocacao.id]);
+
+  const queryAtualizarDisponibilidade = 'UPDATE atlantis.acomodacoes SET disponivel = true WHERE id = ?';
+  await client.execute(queryAtualizarDisponibilidade, [acomodacaoId]);
+}
+
 async function main() {
   await client.connect();
   await criarTabelaClientes();
@@ -361,9 +388,6 @@ async function main() {
   console.log("tudo ok");
 }
 main();
-
-
-
 
 const express = require('express');
 const cors = require('cors');
@@ -613,30 +637,38 @@ app.post('/alocar', async (req, res) => {
   const { clienteId, acomodacaoId } = req.body;
 
   try {
-    // Obter os dependentes do cliente
     const queryObterDependentes = 'SELECT id_dependente FROM atlantis.cliente_dependente WHERE id_cliente = ?';
     const parametrosDependentes = [clienteId];
     const resultadoDependentes = await client.execute(queryObterDependentes, parametrosDependentes, { prepare: true });
     const dependentes = resultadoDependentes.rows.map(row => row.id_dependente);
 
-    // Inserir a alocação para o cliente
     const alocacaoClienteId = uuidv4();
     const queryInserirAlocacaoCliente = 'INSERT INTO atlantis.alocacoes (id, cliente_id, acomodacao_id) VALUES (?, ?, ?)';
     await client.execute(queryInserirAlocacaoCliente, [alocacaoClienteId, clienteId, acomodacaoId], { prepare: true });
 
-    // Inserir as alocações para os dependentes
     const queryInserirAlocacaoDependente = 'INSERT INTO atlantis.alocacoes (id, cliente_id, acomodacao_id) VALUES (?, ?, ?)';
     const parametrosAlocacaoDependentes = dependentes.map(dependenteId => [uuidv4(), dependenteId, acomodacaoId]);
     await Promise.all(parametrosAlocacaoDependentes.map(parametros => client.execute(queryInserirAlocacaoDependente, parametros, { prepare: true })));
 
-    // Atualizar a disponibilidade da acomodação para true
-    const queryAtualizarDisponibilidade = 'UPDATE atlantis.acomodacoes SET disponivel = true WHERE id = ?';
+    const queryAtualizarDisponibilidade = 'UPDATE atlantis.acomodacoes SET disponivel = false WHERE id = ?';
     await client.execute(queryAtualizarDisponibilidade, [acomodacaoId], { prepare: true });
 
     res.status(200).json({ message: 'Cliente e seus dependentes alocados com sucesso' });
   } catch (error) {
     console.error('Erro ao alocar cliente e dependentes:', error);
     res.status(500).json({ error: 'Ocorreu um erro ao alocar o cliente e seus dependentes' });
+  }
+});
+
+app.post('/desalocar', async (req, res) => {
+  const { clienteId } = req.body;
+
+  try {
+    await desalocarCliente(clienteId);
+    res.status(200).json({ message: 'Cliente desalocado com sucesso.' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Erro ao desalocar cliente.' });
   }
 });
 
