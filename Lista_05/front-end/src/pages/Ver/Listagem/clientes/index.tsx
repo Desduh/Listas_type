@@ -43,6 +43,11 @@ function Clientes() {
       });
   }
 
+  function verCliente(id: string) {
+    localStorage.setItem("id_cliente", id);
+    window.location.href = '/ver/cliente'
+  }
+
   return (
     <section>
       <header>
@@ -51,7 +56,7 @@ function Clientes() {
       <main>
         <div className="text">
           <h1 className="titles">
-            <strong>Clientes WB</strong>
+            <strong>Clientes</strong>
           </h1>
         </div>
         <div className="tables">
@@ -71,7 +76,7 @@ function Clientes() {
                     <td>{cliente.nome}</td>
                     <td>{cliente.cpf}</td>
                     <td>
-                      <button className="cps" onClick={() => removerCliente(cliente.id)}>
+                      <button className="cps" onClick={() => verCliente(cliente.id)}>
                         <FiEdit3 color='black' size={23}/>
                       </button>
                     </td>

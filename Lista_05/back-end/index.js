@@ -421,7 +421,7 @@ app.get('/clientes', async (req, res) => {
   }
 });
 
-app.get('/cliente', async (req, res) => {
+app.put('/cliente', async (req, res) => {
   try {
     const id = req.body.id; 
     const cliente = await clienteCompleto(id);
