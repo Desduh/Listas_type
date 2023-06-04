@@ -1,7 +1,7 @@
 import './style.css';
 import { Container, Nav, Navbar, NavDropdown } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
-
+import { GiDolphin } from "react-icons/gi";
 
 function Navbar_() {
     const navigate = useNavigate()
@@ -10,7 +10,7 @@ function Navbar_() {
             <Navbar className='nav' variant="light" expand="lg">
                 <Container>
                     <div>
-                        <Navbar.Brand onClick={() => navigate("/")} className="logo"><strong>Atlantis</strong> </Navbar.Brand>
+                        <Navbar.Brand onClick={() => navigate("/")} className="logo"><strong><GiDolphin color='white' size={30}/> Atlantis</strong> </Navbar.Brand>
                     </div>
                     <ul className="nav-links">
                     <Navbar.Toggle aria-controls="basic-navbar-nav" />

@@ -31,11 +31,6 @@ function EditarCliente() {
       mandaRgs()
     }
     function mandaRgs() {
-      Axios.post("http://localhost:3001/cadastro/cliente/rgs", {
-        dado: [rg, data_rg]
-      }).then((res) => {
-        console.log(res)
-      })
     }
   
     const [formTelefones, setFormTelefones] = useState([{}])

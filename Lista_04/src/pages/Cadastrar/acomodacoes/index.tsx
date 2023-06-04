@@ -20,9 +20,18 @@ function CadastrarAcomodacoes() {
       setGaragem('')
       setClimatizacao('')
     }
+
     function handleSubmit() {
-      toast.success('Cadastro feito com sucesso!');
+      const data = {
+        nome: nome,
+        cama_solteiro: solteiro,
+        cama_casal: casal,
+        suite: suite,
+        climatizacao: Climatização,
+        garagem: garagem
+      };
     }
+    
 
   return (
     <section>
@@ -60,7 +69,7 @@ function CadastrarAcomodacoes() {
             <div className="campo-duplo">
               <div className="field esquerda">
                   <label>Climatização:</label>
-                  <input type="text" onChange={(e) => setClimatizacao(e.target.value)} />
+                  <input placeholder='true/false' type="boolean" onChange={(e) => setClimatizacao(e.target.value)} />
               </div>
               <div className="field direita">
                   <label>Garagem:</label>
