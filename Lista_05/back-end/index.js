@@ -142,6 +142,7 @@ async function inserirUsuario(nome, nomeSocial, nascimento, cpf, passaporte, rgs
 async function selecionarRg(id) {
   const querySelecionarRg = `
   SELECT
+    id,
     numero, 
     emissao
   FROM
@@ -171,6 +172,7 @@ async function selecionarClienteRg(id) {
 async function selecionarTelefone(id) {
   const querySelecionarTelefone = `
   SELECT
+    id,
     ddd,
     numero
   FROM
@@ -200,6 +202,7 @@ async function selecionarClienteTelefone(id) {
 async function selecionarDependente(id) {
   const querySelecionarDependente = `
   SELECT
+    id,
     nome,
     nome_social,
     nascimento,
@@ -253,6 +256,7 @@ async function selecionarAlocacao(id) {
 async function selectCliente(id) {
   const querySelecionarCliente = `
   SELECT
+    id,
     nome,
     nome_social,
     nascimento,
@@ -275,6 +279,7 @@ async function clienteCompleto(id) {
   const resultadoUsuario = await selectCliente(id);
   if (resultadoUsuario && resultadoUsuario.first()) {
     const usuarioOld = resultadoUsuario.first();
+    usuario.id = usuarioOld.id;
     usuario.nome = usuarioOld.nome;
     usuario.nome_social = usuarioOld.nome_social;
     usuario.nascimento = usuarioOld.nascimento.toString();
@@ -293,7 +298,7 @@ async function clienteCompleto(id) {
         const resultadoRg = await selecionarRg(idRg);
         return resultadoRg.first();
       }));
-      usuario.rgs = rgsArray.map((rg) => ({ numero: rg.numero, emissao: rg.emissao.toString() }));
+      usuario.rgs = rgsArray.map((rg) => ({ id: rg.id, numero: rg.numero, emissao: rg.emissao.toString() }));
     }
 
     if (resultadoIdTelefones && resultadoIdTelefones.rowLength > 0) {
@@ -302,7 +307,7 @@ async function clienteCompleto(id) {
         const resultadoTelefone = await selecionarTelefone(idTelefone);
         return resultadoTelefone.first();
       }));
-      usuario.telefones = telefonesArray.map((telefone) => ({ ddd: telefone.ddd, numero: telefone.numero }));
+      usuario.telefones = telefonesArray.map((telefone) => ({ id: telefone.id, ddd: telefone.ddd, numero: telefone.numero }));
     }
 
     if (resultadoIdDependentes && resultadoIdDependentes.rowLength > 0) {
@@ -313,6 +318,7 @@ async function clienteCompleto(id) {
       }));
       if (dependentesArray[0] != null) {
         usuario.dependentes = dependentesArray.map((dependente) => ({
+          id: dependente.id,
           nome: dependente.nome,
           nome_social: dependente.nome_social,
           nascimento: dependente.nascimento.toString(),
@@ -326,6 +332,7 @@ async function clienteCompleto(id) {
     if (resultadoEndereco && resultadoEndereco.rowLength > 0) {
       const endereco = resultadoEndereco.first();
       usuario.endereco = {
+        id: endereco.id,
         locadouro: endereco.locadouro,
         cidade: endereco.cidade,
         estado: endereco.estado,
@@ -337,6 +344,54 @@ async function clienteCompleto(id) {
     }
   }
   return usuario;
+}
+
+async function atualizarCliente(id, nome, nomeSocial, nascimento, cpf, passaporte, rgs, telefones, dependentes, endereco) {
+  const queryAtualizarCliente = `
+    UPDATE atlantis.clientes
+    SET nome = ?, nome_social = ?, nascimento = ?, cpf = ?, passaporte = ?
+    WHERE id = ?;
+  `;
+  const parametrosCliente = [nome, nomeSocial, nascimento, cpf, passaporte, id];
+  await client.execute(queryAtualizarCliente, parametrosCliente, { prepare: true });
+
+  const queryAtualizarEndereco = `
+    UPDATE atlantis.endereco
+    SET cep = ?, numero = ?, locadouro = ?, cidade = ?, estado = ?, pais = ?, bairro = ?
+    WHERE id_cliente = ?;
+  `;
+  const parametrosEndereco = [endereco.cep, endereco.numero, endereco.locadouro, endereco.cidade, endereco.estado, endereco.pais, endereco.bairro, id];
+  await client.execute(queryAtualizarEndereco, parametrosEndereco, { prepare: true });
+
+  const queryExcluirRgs = 'DELETE FROM atlantis.rgs WHERE id IN ?';
+  const rgsIds = rgs.map((rg) => rg.id);
+  await client.execute(queryExcluirRgs, [rgsIds], { prepare: true });
+
+  for (const rg of rgs) {
+    const queryInserirRg = 'INSERT INTO atlantis.rgs (id, numero, emissao) VALUES (?, ?, ?)';
+    const parametrosRg = [rg.id, rg.numero, rg.emissao];
+    await client.execute(queryInserirRg, parametrosRg, { prepare: true });
+  }
+
+  const queryExcluirTelefones = 'DELETE FROM atlantis.telefones WHERE id IN ?';
+  const telefonesIds = telefones.map((telefone) => telefone.id);
+  await client.execute(queryExcluirTelefones, [telefonesIds], { prepare: true });
+
+  for (const telefone of telefones) {
+    const queryInserirTelefone = 'INSERT INTO atlantis.telefones (id, ddd, numero) VALUES (?, ?, ?)';
+    const parametrosTelefone = [telefone.id, telefone.ddd, telefone.numero];
+    await client.execute(queryInserirTelefone, parametrosTelefone, { prepare: true });
+  }
+
+  const queryExcluirDependentes = 'DELETE FROM atlantis.clientes WHERE id IN ?';
+  const dependentesIds = dependentes.map((dependente) => dependente.id);
+  await client.execute(queryExcluirDependentes, [dependentesIds], { prepare: true });
+
+  for (const dependente of dependentes) {
+    const queryInserirDependente = 'INSERT INTO atlantis.clientes (id, nome, nome_social, nascimento, cpf, passaporte, titular) VALUES (?, ?, ?, ?, ?, ?, ?)';
+    const parametrosDependente = [dependente.id, dependente.nome, dependente.nomeSocial, dependente.nascimento, dependente.cpf, dependente.passaporte, false];
+    await client.execute(queryInserirDependente, parametrosDependente, { prepare: true });
+  }
 }
 
 async function desalocarCliente(idCliente) {
@@ -434,6 +489,18 @@ app.put('/cliente', async (req, res) => {
   } catch (error) {
     console.error('Erro ao obter o cliente:', error);
     res.status(500).send('Ocorreu um erro ao obter o cliente.');
+  }
+});
+
+app.put('/atualizar/cliente', async (req, res) => {
+  const { id, nome, nomeSocial, nascimento, cpf, passaporte, rgs, telefones, dependentes, endereco } = req.body;
+
+  try {
+    await atualizarCliente(id, nome, nomeSocial, nascimento, cpf, passaporte, rgs, telefones, dependentes, endereco);
+    res.status(200).json({ message: 'Cliente atualizado com sucesso' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Ocorreu um erro ao atualizar o cliente' });
   }
 });
 
