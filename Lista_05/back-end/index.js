@@ -504,7 +504,7 @@ async function main() {
   await criarTabelaAcomodacoes();
   await criarTabelaClienteAlocado();
   await criarIndiceIdClienteAlocado();
-  console.log("tudo ok");
+  console.log("Boraaaaaa! :)");
 }
 main();
 
@@ -578,7 +578,6 @@ app.delete('/deletar/cliente', async (req, res) => {
       return;
     }
 
-    // Excluir os registros de rgs relacionados ao cliente
     const queryIdClienteRg = 'SELECT id_rg FROM atlantis.cliente_rg WHERE id_cliente = ?';
     const idClienteRgResult = await client.execute(queryIdClienteRg, [id], { prepare: true });
     const idsRg = idClienteRgResult.rows.map(row => row.id_rg);
@@ -805,5 +804,5 @@ app.post('/desalocar', async (req, res) => {
 
 
 app.listen(3001, () => {
-  console.log('O aplicativo está sendo executado na porta 3000!');
+  console.log('Espere a confirmação!');
 });
