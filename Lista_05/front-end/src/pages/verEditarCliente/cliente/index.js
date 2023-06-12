@@ -69,13 +69,14 @@ function VerCliente() {
       e.preventDefault();
       
       const clienteData = {
+        id: idCliente,
         nome: nome,
         nomeSocial: nome_social,
         nascimento: data_nasc,
         cpf: cpf,
         passaporte: passaporte,
-        rgs: rgs.map((rg) => ({ numero: rg.numero, emissao: rg.emissao })),
-        telefones: telefones.map((telefone) => ({ ddd: telefone.ddd, numero: telefone.numero })),
+        rgs: rgs.map((rg) => ({ id: rg.id, numero: rg.numero, emissao: rg.emissao })),
+        telefones: telefones.map((telefone) => ({ id: telefone.id, ddd: telefone.ddd, numero: telefone.numero })),
         dependentes: dependentes,
         endereco: {
           cep: cep,
@@ -87,11 +88,9 @@ function VerCliente() {
           bairro: bairro
         }
       };
-
-      console.log(clienteData);
       
     
-      Axios.post("http://localhost:3001/adicionar/cliente", clienteData)
+      Axios.put("http://localhost:3001/atualizar/cliente", clienteData)
         .then((res) => {
           console.log(res);
           localStorage.removeItem("cliente")
@@ -143,7 +142,7 @@ function VerCliente() {
       console.log(error);
       toast.error('Erro ao buscar o endereço. Verifique o CEP informado.');
     }
-  };
+  };  
     
   
   return (

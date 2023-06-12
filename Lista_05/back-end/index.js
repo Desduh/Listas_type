@@ -350,48 +350,112 @@ async function atualizarCliente(id, nome, nomeSocial, nascimento, cpf, passaport
   const queryAtualizarCliente = `
     UPDATE atlantis.clientes
     SET nome = ?, nome_social = ?, nascimento = ?, cpf = ?, passaporte = ?
-    WHERE id = ?;
+    WHERE id = ?
   `;
   const parametrosCliente = [nome, nomeSocial, nascimento, cpf, passaporte, id];
   await client.execute(queryAtualizarCliente, parametrosCliente, { prepare: true });
 
-  const queryAtualizarEndereco = `
-    UPDATE atlantis.endereco
-    SET cep = ?, numero = ?, locadouro = ?, cidade = ?, estado = ?, pais = ?, bairro = ?
-    WHERE id_cliente = ?;
-  `;
-  const parametrosEndereco = [endereco.cep, endereco.numero, endereco.locadouro, endereco.cidade, endereco.estado, endereco.pais, endereco.bairro, id];
-  await client.execute(queryAtualizarEndereco, parametrosEndereco, { prepare: true });
-
-  const queryExcluirRgs = 'DELETE FROM atlantis.rgs WHERE id IN ?';
-  const rgsIds = rgs.map((rg) => rg.id);
-  await client.execute(queryExcluirRgs, [rgsIds], { prepare: true });
-
-  for (const rg of rgs) {
-    const queryInserirRg = 'INSERT INTO atlantis.rgs (id, numero, emissao) VALUES (?, ?, ?)';
-    const parametrosRg = [rg.id, rg.numero, rg.emissao];
-    await client.execute(queryInserirRg, parametrosRg, { prepare: true });
+  if (rgs != undefined) {
+    for (const rg of rgs) {
+      if (rg.id) {
+        const queryAtualizarRg = `
+          UPDATE atlantis.rgs
+          SET numero = ?, emissao = ?
+          WHERE id = ?
+        `;
+        const parametrosRg = [rg.numero, rg.emissao, rg.id];
+        await client.execute(queryAtualizarRg, parametrosRg, { prepare: true });
+      } else {
+        const rgId = uuidv4();
+        const queryInserirRg = `
+          INSERT INTO atlantis.rgs (id, numero, emissao)
+          VALUES (?, ?, ?)
+        `;
+        const parametrosInserirRg = [rgId, rg.numero, rg.emissao];
+        await client.execute(queryInserirRg, parametrosInserirRg, { prepare: true });
+  
+        const queryInserirClienteRg = `
+          INSERT INTO atlantis.cliente_rg (id, id_cliente, id_rg)
+          VALUES (?, ?, ?)
+        `;
+        const parametrosClienteRg = [uuidv4(), id, rgId];
+        await client.execute(queryInserirClienteRg, parametrosClienteRg, { prepare: true });
+      }
+    }
   }
 
-  const queryExcluirTelefones = 'DELETE FROM atlantis.telefones WHERE id IN ?';
-  const telefonesIds = telefones.map((telefone) => telefone.id);
-  await client.execute(queryExcluirTelefones, [telefonesIds], { prepare: true });
-
-  for (const telefone of telefones) {
-    const queryInserirTelefone = 'INSERT INTO atlantis.telefones (id, ddd, numero) VALUES (?, ?, ?)';
-    const parametrosTelefone = [telefone.id, telefone.ddd, telefone.numero];
-    await client.execute(queryInserirTelefone, parametrosTelefone, { prepare: true });
+  if (telefones != undefined) {
+    for (const telefone of telefones) {
+      if (telefone.id) {
+        const queryAtualizarTelefone = `
+          UPDATE atlantis.telefones
+          SET ddd = ?, numero = ?
+          WHERE id = ?
+        `;
+        const parametrosTelefone = [telefone.ddd, telefone.numero, telefone.id];
+        await client.execute(queryAtualizarTelefone, parametrosTelefone, { prepare: true });
+      } else {
+        const telefoneId = uuidv4();
+        const queryInserirTelefone = `
+          INSERT INTO atlantis.telefones (id, ddd, numero)
+          VALUES (?, ?, ?)
+        `;
+        const parametrosInserirTelefone = [telefoneId, telefone.ddd, telefone.numero];
+        await client.execute(queryInserirTelefone, parametrosInserirTelefone, { prepare: true });
+  
+        const queryInserirClienteTelefone = `
+          INSERT INTO atlantis.cliente_telefone (id, id_cliente, id_telefone)
+          VALUES (?, ?, ?)
+        `;
+        const parametrosClienteTelefone = [uuidv4(), id, telefoneId];
+        await client.execute(queryInserirClienteTelefone, parametrosClienteTelefone, { prepare: true });
+      }
+    }
   }
 
-  const queryExcluirDependentes = 'DELETE FROM atlantis.clientes WHERE id IN ?';
-  const dependentesIds = dependentes.map((dependente) => dependente.id);
-  await client.execute(queryExcluirDependentes, [dependentesIds], { prepare: true });
-
-  for (const dependente of dependentes) {
-    const queryInserirDependente = 'INSERT INTO atlantis.clientes (id, nome, nome_social, nascimento, cpf, passaporte, titular) VALUES (?, ?, ?, ?, ?, ?, ?)';
-    const parametrosDependente = [dependente.id, dependente.nome, dependente.nomeSocial, dependente.nascimento, dependente.cpf, dependente.passaporte, false];
-    await client.execute(queryInserirDependente, parametrosDependente, { prepare: true });
+  if (dependentes != undefined) {
+    for (const dependente of dependentes) {
+      if (dependente.id) {
+        const queryAtualizarDependente = `
+          UPDATE atlantis.clientes
+          SET nome = ?, nome_social = ?, nascimento = ?, cpf = ?, passaporte = ?, titular = ?
+          WHERE id = ?
+        `;
+        const parametrosDependente = [dependente.nome, dependente.nome_social, dependente.nascimento, dependente.cpf, dependente.passaporte, dependente.titular, dependente.id];
+        await client.execute(queryAtualizarDependente, parametrosDependente, { prepare: true });
+      } else {
+        const dependenteId = uuidv4();
+        const queryInserirDependente = `
+          INSERT INTO atlantis.clientes (id, nome, nome_social, nascimento, cpf, passaporte, titular)
+          VALUES (?, ?, ?, ?, ?, ?, ?)
+        `;
+        const parametrosInserirDependente = [dependenteId, dependente.nome, dependente.nome_social, dependente.nascimento, dependente.cpf, dependente.passaporte, dependente.titular];
+        await client.execute(queryInserirDependente, parametrosInserirDependente, { prepare: true });
+  
+        const queryInserirClienteDependente = `
+          INSERT INTO atlantis.cliente_dependente (id, id_cliente, id_dependente)
+          VALUES (?, ?, ?)
+        `;
+        const parametrosClienteDependente = [uuidv4(), id, dependenteId];
+        await client.execute(queryInserirClienteDependente, parametrosClienteDependente, { prepare: true });
+      }
   }
+  }
+
+  const query = 'SELECT id FROM atlantis.endereco WHERE id_cliente = ?';
+  const resultado = await client.execute(query, [id]);
+  const idsEnderecos = resultado.rows.map(row => row.id);
+  await Promise.all(
+    idsEnderecos.map(async (id_endereco) => {
+      const queryAtualizarEndereco = `
+        UPDATE atlantis.endereco
+        SET cep = ?, numero = ?, locadouro = ?, cidade = ?, estado = ?, pais = ?, bairro = ?
+        WHERE id = ?;
+      `;
+      const parametrosEndereco = [endereco.cep, endereco.numero, endereco.locadouro, endereco.cidade, endereco.estado, endereco.pais, endereco.bairro, id_endereco];
+      await client.execute(queryAtualizarEndereco, parametrosEndereco, { prepare: true });
+    })
+  );
 }
 
 async function desalocarCliente(idCliente) {

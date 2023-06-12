@@ -26,7 +26,7 @@ export default function EditarDependentes() {
     localStorage.setItem("cliente", JSON.stringify(cliente));
     window.location.href = '/cadastrar/clientes'
   }
-
+  
   return (
     <section>
       <header>
@@ -61,7 +61,7 @@ export default function EditarDependentes() {
                     <input
                       placeholder='Insira o nome social'
                       type="text"
-                      value={dependente.nomeSocial}
+                      value={dependente.nome_social}
                       onChange={(e) => {
                         const newDependentes = [...dependentes];
                         newDependentes[index].nomeSocial = e.target.value;

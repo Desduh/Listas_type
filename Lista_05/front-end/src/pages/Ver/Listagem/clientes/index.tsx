@@ -9,6 +9,7 @@ interface Cliente {
   id: string;
   nome: string;
   cpf: string;
+  titular: boolean;
 }
 
 function Clientes() {
@@ -71,22 +72,25 @@ function Clientes() {
                 </tr>
               </thead>
               <tbody>
-                {clientes.map(cliente => (
-                  <tr key={cliente.id}>
-                    <td>{cliente.nome}</td>
-                    <td>{cliente.cpf}</td>
-                    <td>
-                      <button className="cps" onClick={() => verCliente(cliente.id)}>
-                        <FiEdit3 color='black' size={23}/>
-                      </button>
-                    </td>
-                    <td>
-                      <button className="cps" onClick={() => removerCliente(cliente.id)}>
-                        <FiTrash color='red' size={23}/>
-                      </button>
-                    </td>
-                  </tr>
-                ))}
+              {clientes
+                  .filter(cliente => cliente.titular)
+                  .map(cliente => (
+                    <tr key={cliente.id}>
+                      <td>{cliente.nome}</td>
+                      <td>{cliente.cpf}</td>
+                      <td>
+                        <button className="cps" onClick={() => verCliente(cliente.id)}>
+                          <FiEdit3 color='black' size={23}/>
+                        </button>
+                      </td>
+                      <td>
+                        <button className="cps" onClick={() => removerCliente(cliente.id)}>
+                          <FiTrash color='red' size={23}/>
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                }
               </tbody>
             </Table>
           ) : (
