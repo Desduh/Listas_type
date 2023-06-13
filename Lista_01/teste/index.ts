@@ -19,6 +19,7 @@ let telefone = new Telefone()
 telefone.ddd = "21"
 telefone.numero = "988372758"
 cliente.telefones.push(telefone)
+telefone = new Telefone()
 telefone.ddd = "21"
 telefone.numero = "988303089"
 cliente.telefones.push(telefone)
