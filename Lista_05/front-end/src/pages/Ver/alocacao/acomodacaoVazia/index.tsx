@@ -22,11 +22,13 @@ function AcomodacaoVazia() {
   useEffect(() => {
     axios.get<Acomodacao[]>('http://localhost:3001/acomodacoes')
       .then((response) => {
+        console.log(response.data);
+        
         const acomodacoesDisponiveis = response.data.filter((acomodacao) => acomodacao.disponivel);
         setAcomodacoes(acomodacoesDisponiveis);
       })
       .catch((error) => console.log(error));
-  }, []);
+  }, []);  
 
   const id_cliente = localStorage.getItem("id_cliente");
 

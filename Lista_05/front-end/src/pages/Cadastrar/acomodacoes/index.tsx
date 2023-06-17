@@ -29,7 +29,8 @@ function CadastrarAcomodacoes() {
         cama_casal: casal,
         suite: suite,
         climatizacao: Climatização,
-        garagem: garagem
+        garagem: garagem,
+        disponivel: true
       };
     
       axios.post('http://localhost:3001/adicionar/acomodacao', data)
